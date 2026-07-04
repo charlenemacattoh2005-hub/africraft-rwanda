@@ -31,6 +31,9 @@ coverage/
 # Docker
 .docker/
 
+# Vite cache
+client/.vite/
+
 # Misc
 *.pem
 .cache/
