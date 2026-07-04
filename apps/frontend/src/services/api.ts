@@ -1,0 +1,76 @@
+const API_BASE_URL =
+  (import.meta as any).env?.VITE_API_URL || "http://localhost:4000";
+
+const AUTH_TOKEN_KEY = "africraft_auth_token";
+
+export function setAuthToken(token: string | null) {
+  if (!token) {
+    localStorage.removeItem(AUTH_TOKEN_KEY);
+    return;
+  }
+  localStorage.setItem(AUTH_TOKEN_KEY, token);
+}
+
+export function getAuthToken() {
+  return localStorage.getItem(AUTH_TOKEN_KEY);
+}
+
+function buildUrl(path: string) {
+  if (path.startsWith("http://") || path.startsWith("https://")) return path;
+  const p = path.startsWith("/") ? path : `/${path}`;
+  return `${API_BASE_URL}${p}`;
+}
+
+async function handleResponse(res: Response) {
+  const text = await res.text();
+  let data: any = null;
+  try {
+    data = text ? JSON.parse(text) : null;
+  } catch {
+    data = text;
+  }
+
+  if (!res.ok) {
+    const message = data?.message || res.statusText || "Request failed";
+    const err: any = new Error(message);
+    err.status = res.status;
+    err.data = data;
+    throw err;
+  }
+  return data;
+}
+
+export async function apiGet(path: string) {
+  const res = await fetch(buildUrl(path), {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return handleResponse(res);
+}
+
+export async function apiGetAuth(path: string) {
+  const token = getAuthToken();
+  const res = await fetch(buildUrl(path), {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+  });
+  return handleResponse(res);
+}
+
+export async function apiPost(path: string, body: any, isAuth = false) {
+  const token = isAuth ? getAuthToken() : null;
+  const res = await fetch(buildUrl(path), {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: JSON.stringify(body ?? {}),
+  });
+  return handleResponse(res);
+}
