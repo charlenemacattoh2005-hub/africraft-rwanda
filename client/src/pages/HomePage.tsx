@@ -327,7 +327,7 @@ export default function HomePage() {
       <footer className="card classic-footer" style={{ marginTop: 20, padding: 18 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
           <div>
-            <div style={{ fontWeight: 800 }}>Africraft Rwanda</div>
+            <div style={{ fontWeight: 800 }}>DellCraft Rwanda</div>
             <div className="small" style={{ marginTop: 6 }}>Authentic handmade goods from Rwanda.</div>
           </div>
           <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
@@ -335,7 +335,7 @@ export default function HomePage() {
             <Link to="/categories" className="small">Categories</Link>
             <Link to="/login" className="small">Login</Link>
           </div>
-          <div className="small">hello@africraft.rw</div>
+          <div className="small">hello@dellcraft.rw</div>
         </div>
       </footer>
     </div>

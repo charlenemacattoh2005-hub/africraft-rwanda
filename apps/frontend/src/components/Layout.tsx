@@ -22,7 +22,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               to="/"
               style={{ display: "flex", alignItems: "center", gap: 10 }}
             >
-              <span>Africraft Rwanda</span>
+              <span>DellCraft Rwanda</span>
             </Link>
           </div>
 

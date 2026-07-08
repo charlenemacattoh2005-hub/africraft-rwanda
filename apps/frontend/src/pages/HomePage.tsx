@@ -5,7 +5,7 @@ export default function HomePage() {
   return (
     <div className="container page">
       <div className="card" style={{ padding: 20 }}>
-        <div className="h1">Africraft Rwanda</div>
+        <div className="h1">DellCraft Rwanda</div>
         <p className="p">
           Shop authentic Rwandan crafts online: browse products, add to cart, checkout, and track orders.
         </p>

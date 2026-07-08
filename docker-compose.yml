@@ -15,7 +15,7 @@
     environment:
       NODE_ENV: production
       PORT: 5000
-      MONGODB_URI: mongodb://mongo:27017/africraft-rwanda
+      MONGODB_URI: mongodb://mongo:27017/dellcraft-rwanda
       JWT_SECRET: change-me-in-production
       JWT_EXPIRE: 7d
       CLIENT_URL: http://localhost:8080

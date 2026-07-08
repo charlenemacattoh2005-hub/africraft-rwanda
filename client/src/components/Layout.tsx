@@ -34,7 +34,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 {/* Handle */}
                 <path d="M16 13.5 Q19 8 22 13.5" stroke="#fff8ee" strokeWidth="1.2" fill="none" strokeLinecap="round"/>
               </svg>
-              <span style={{ fontFamily: '"Iowan Old Style", Georgia, serif', fontWeight: 800, fontSize: 17, color: '#4d2f17', letterSpacing: 0.3 }}>Africraft Rwanda</span>
+              <span style={{ fontFamily: '"Iowan Old Style", Georgia, serif', fontWeight: 800, fontSize: 17, color: '#4d2f17', letterSpacing: 0.3 }}>DellCraft Rwanda</span>
             </Link>
           </div>
 

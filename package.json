@@ -1,8 +1,8 @@
 ﻿{
-  "name": "africraft-rwanda",
+  "name": "dellcraft-rwanda",
   "private": true,
   "version": "0.1.0",
-  "description": "AfriCraft Rwanda - University e-commerce MERN stack application",
+  "description": "DellCraft Rwanda - University e-commerce MERN stack application",
   "scripts": {
     "dev": "concurrently \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
     "dev:client": "npm run dev --prefix client",

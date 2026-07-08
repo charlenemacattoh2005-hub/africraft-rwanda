@@ -1,6 +1,8 @@
-﻿import express from 'express';
+﻿import dotenv from 'dotenv';
+dotenv.config();
+
+import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import { connectMongo } from './lib/db.js';
 
 import authRoutes from './routes/authRoutes.js';
@@ -14,19 +16,17 @@ import adminRoutes from './routes/adminRoutes.js';
 import adminReviewRoutes from './routes/adminReviewRoutes.js';
 import { errorHandler } from './middleware/errorHandler.js';
 
-dotenv.config();
-
 const app = express();
 
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json({ limit: '1mb' }));
 
 app.get('/health', (req, res) => {
-  res.json({ ok: true, service: 'africraft-backend' });
+  res.json({ ok: true, service: 'dellcraft-backend' });
 });
 
 app.get('/', (req, res) => {
-  res.json({ message: 'AfriCraft API running' });
+  res.json({ message: 'DellCraft API running' });
 });
 
 app.use('/api/auth', authRoutes);

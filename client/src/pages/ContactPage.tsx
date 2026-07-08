@@ -26,12 +26,12 @@ export default function ContactPage() {
               <div style={{ fontWeight: 800, marginBottom: 8 }}>Contact details</div>
               <div style={{ display: 'grid', gap: 8 }}>
                 <div><strong>Phone:</strong> +250 794 049 090</div>
-                <div><strong>Email:</strong> hello@africraft.rw</div>
+                <div><strong>Email:</strong> hello@dellcraft.rw</div>
                 <div><strong>Address:</strong> KG 5 Ave, Kigali, Rwanda</div>
               </div>
               <div style={{ marginTop: 14, borderRadius: 12, overflow: 'hidden', border: '1px solid rgba(255,255,255,.12)' }}>
                 <iframe
-                  title="Africraft Rwanda location"
+                  title="DellCraft Rwanda location"
                   src="https://www.google.com/maps?q=Kigali%20Rwanda&z=12&output=embed"
                   width="100%"
                   height="220"
