@@ -8,11 +8,11 @@ export async function connectMongo() {
   }
 
   try {
-    await mongoose.connect(uri, { serverSelectionTimeoutMS: 3000 });
+    await mongoose.connect(uri, { serverSelectionTimeoutMS: 10000 });
     console.log('[db] Connected to MongoDB');
     return true;
   } catch (err) {
-    console.warn('[db] MongoDB connection failed; continuing in placeholder mode:', err.message);
+    console.error('[db] MongoDB connection failed:', err.message);
     return false;
   }
 }
