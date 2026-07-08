@@ -170,6 +170,13 @@ export async function listProducts(req, res, next) {
 export async function getProduct(req, res, next) {
   try {
     const { id } = req.params;
+
+    // Handle demo/fallback product IDs (not valid MongoDB ObjectIds)
+    const demo = fallbackProducts.find((p) => p._id === id);
+    if (demo) {
+      return res.json({ item: { ...demo, reviewCount: 0, averageRating: 0 } });
+    }
+
     const item = await Product.findById(id);
     if (!item || item.isActive === false) {
       return res.status(404).json({ message: 'Product not found' });

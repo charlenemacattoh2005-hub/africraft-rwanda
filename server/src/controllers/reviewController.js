@@ -4,6 +4,10 @@ import { Product } from '../models/Product.js';
 export async function listProductReviews(req, res, next) {
   try {
     const { productId } = req.params;
+    // Demo product IDs are not valid ObjectIds — return empty reviews
+    if (!productId.match(/^[a-f\d]{24}$/i)) {
+      return res.json({ reviews: [] });
+    }
     const reviews = await Review.find({ productId }).sort({ createdAt: -1 });
     return res.json({ reviews });
   } catch (err) {

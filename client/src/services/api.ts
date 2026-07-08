@@ -6,13 +6,22 @@ const AUTH_TOKEN_KEY = "africraft_auth_token";
 export function setAuthToken(token: string | null) {
   if (!token) {
     localStorage.removeItem(AUTH_TOKEN_KEY);
+    sessionStorage.removeItem(AUTH_TOKEN_KEY);
     return;
   }
-  localStorage.setItem(AUTH_TOKEN_KEY, token);
+  try {
+    localStorage.setItem(AUTH_TOKEN_KEY, token);
+  } catch {
+    sessionStorage.setItem(AUTH_TOKEN_KEY, token);
+  }
 }
 
 export function getAuthToken() {
-  return localStorage.getItem(AUTH_TOKEN_KEY);
+  try {
+    return localStorage.getItem(AUTH_TOKEN_KEY) || sessionStorage.getItem(AUTH_TOKEN_KEY);
+  } catch {
+    return sessionStorage.getItem(AUTH_TOKEN_KEY);
+  }
 }
 
 function buildUrl(path: string) {
