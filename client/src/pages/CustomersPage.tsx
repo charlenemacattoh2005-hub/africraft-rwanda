@@ -1,35 +1,82 @@
-import React from 'react';
-
-const customers = [
-  { id: 'C-001', name: 'Aline Uwase', email: 'aline@example.com', phone: '+250 782 111 111', address: 'Kigali, Rwanda' },
-  { id: 'C-002', name: 'Eric Niyonzima', email: 'eric@example.com', phone: '+250 783 222 222', address: 'Muhanga, Rwanda' },
-];
+import React, { useEffect, useState } from 'react';
+import RequireAuth from '../components/RequireAuth';
+import AdminLayout from '../components/AdminLayout';
+import { fetchAdminCustomers } from '../services/admin';
 
 export default function CustomersPage() {
   return (
-    <div className="container page">
-      <div className="card" style={{ padding: 22 }}>
-        <div className="h1">Customers</div>
-        <p className="p">A simple customer overview for the storefront dashboard.</p>
+    <RequireAuth>
+      <AdminLayout><Inner /></AdminLayout>
+    </RequireAuth>
+  );
+}
 
-        <div style={{ marginTop: 16, display: 'grid', gap: 12 }}>
-          {customers.map((customer) => (
-            <div key={customer.id} className="card" style={{ padding: 16 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
-                <div>
-                  <div style={{ fontWeight: 800 }}>{customer.name}</div>
-                  <div className="small">Customer ID: {customer.id}</div>
-                </div>
-                <div className="small">{customer.email}</div>
-              </div>
-              <div style={{ marginTop: 8, display: 'grid', gap: 4 }}>
-                <div><strong>Phone:</strong> {customer.phone}</div>
-                <div><strong>Address:</strong> {customer.address}</div>
-              </div>
-            </div>
-          ))}
-        </div>
+function Inner() {
+  const [customers, setCustomers] = useState<any[]>([]);
+  const [loading,   setLoading]   = useState(true);
+  const [error,     setError]     = useState<string|null>(null);
+  const [search,    setSearch]    = useState('');
+
+  useEffect(() => {
+    let ok = true;
+    fetchAdminCustomers()
+      .then(d => { if (ok) setCustomers(d.users || []); })
+      .catch(e => { if (ok) setError(e?.message || 'Failed'); })
+      .finally(() => { if (ok) setLoading(false); });
+    return () => { ok = false; };
+  }, []);
+
+  const filtered = customers.filter(c =>
+    search === '' ||
+    c.fullName?.toLowerCase().includes(search.toLowerCase()) ||
+    c.email?.toLowerCase().includes(search.toLowerCase())
+  );
+
+  return (
+    <>
+      <div className="accent-bar" />
+      <div className="h1" style={{ marginBottom: 4 }}>Customers</div>
+      <p className="p" style={{ marginBottom: 20 }}>All registered customers on the platform.</p>
+
+      <div style={{ display:'flex', gap:10, flexWrap:'wrap', marginBottom:20 }}>
+        <input className="input" style={{ maxWidth:300 }} placeholder="Search by name or email…"
+          value={search} onChange={e => setSearch(e.target.value)} />
+        <div className="badge" style={{ alignSelf:'center' }}>{filtered.length} customers</div>
       </div>
-    </div>
+
+      {loading && <div className="skeleton" style={{ height:200 }} />}
+      {error && <div className="badge" style={{ borderColor:'rgba(220,38,38,.3)', color:'#dc2626', background:'rgba(220,38,38,.08)' }}>{error}</div>}
+
+      {!loading && (
+        <div className="dash-card">
+          <table className="dash-table">
+            <thead>
+              <tr><th>Name</th><th>Email</th><th>Phone</th><th>Address</th><th>Joined</th></tr>
+            </thead>
+            <tbody>
+              {filtered.length === 0 && (
+                <tr><td colSpan={5} style={{ textAlign:'center', padding:24, color:'var(--muted)' }}>No customers found.</td></tr>
+              )}
+              {filtered.map(c => (
+                <tr key={c._id}>
+                  <td>
+                    <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+                      <div style={{ width:36, height:36, borderRadius:'50%', background:'linear-gradient(135deg,#c2410c,#d97706)', display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontWeight:800, fontSize:14, flexShrink:0 }}>
+                        {c.fullName?.[0]?.toUpperCase() || '?'}
+                      </div>
+                      <span style={{ fontWeight:700 }}>{c.fullName}</span>
+                    </div>
+                  </td>
+                  <td className="small">{c.email}</td>
+                  <td className="small">{c.phone || '—'}</td>
+                  <td className="small">{c.address || '—'}</td>
+                  <td className="small">{new Date(c.createdAt).toLocaleDateString()}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </>
   );
 }
