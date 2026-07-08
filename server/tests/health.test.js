@@ -5,7 +5,7 @@ import express from "express";
 test("health endpoint returns ok payload", async () => {
   const app = express();
   app.get("/health", (_req, res) => {
-    res.json({ ok: true, service: "africraft-backend" });
+    res.json({ ok: true, service: "dellcraft-backend" });
   });
 
   const server = app.listen(0);
@@ -16,7 +16,7 @@ test("health endpoint returns ok payload", async () => {
     assert.equal(res.status, 200);
     const body = await res.json();
     assert.equal(body.ok, true);
-    assert.equal(body.service, "africraft-backend");
+    assert.equal(body.service, "dellcraft-backend");
   } finally {
     await new Promise((resolve, reject) => {
       server.close((err) => (err ? reject(err) : resolve()));
