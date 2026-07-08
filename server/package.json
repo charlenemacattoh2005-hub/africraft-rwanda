@@ -8,6 +8,7 @@
     "dev": "nodemon src/index.js",
     "start": "node src/index.js",
     "seed:products": "node scripts/seedProducts.js",
+    "seed": "node scripts/seed.js",
     "build": "echo \"No build step required\"",
     "test": "node --test tests/health.test.js"
   },
