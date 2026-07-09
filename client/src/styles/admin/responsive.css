@@ -1,0 +1,58 @@
+/* ── Admin responsive ───────────────────────────────────────── */
+
+/* Mobile: sidebar becomes an overlay drawer */
+@media (max-width: 768px) {
+  .admin-layout {
+    grid-template-columns: 1fr !important;
+    position: relative;
+  }
+
+  .admin-sidebar {
+    position: fixed;
+    top: 0; left: 0;
+    height: 100vh;
+    z-index: 200;
+    transform: translateX(-100%);
+    transition: transform 0.28s cubic-bezier(.4,0,.2,1), box-shadow 0.28s;
+    box-shadow: none;
+    width: 260px !important;
+  }
+
+  /* When sidebar is open on mobile (toggle removes sidebar-collapsed) */
+  .admin-layout:not(.sidebar-collapsed) .admin-sidebar {
+    transform: translateX(0);
+    box-shadow: 4px 0 32px rgba(0,0,0,.25);
+  }
+
+  /* Backdrop overlay */
+  .admin-layout:not(.sidebar-collapsed)::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.45);
+    z-index: 199;
+    animation: fadeIn 0.2s ease;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
+  .admin-content { width: 100%; }
+  .admin-topbar  { padding: 0 16px; }
+  .admin-inner   { padding: 14px; }
+
+  .dash-stat-value { font-size: 22px; }
+}
+
+/* Tablet tweaks */
+@media (max-width: 1024px) and (min-width: 769px) {
+  .admin-topbar-search input { width: 150px; }
+  .admin-topbar-search input:focus { width: 200px; }
+}
+
+/* Hide search on very small screens */
+@media (max-width: 480px) {
+  .admin-topbar-search { display: none; }
+  .admin-topbar { padding: 0 12px; gap: 8px; }
+}

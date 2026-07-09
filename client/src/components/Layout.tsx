@@ -1,85 +1,302 @@
-import React from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { getAuthToken, getAuthPayload } from "../services/api";
-import { logout } from "../services/auth";
+import React, { useState, useEffect, useRef } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { getAuthToken, getAuthPayload } from '../services/api';
+import { logout } from '../services/auth';
+
+const CART_KEY = 'africraft_cart_v1';
+function getCartCount() {
+  try {
+    const raw = localStorage.getItem(CART_KEY);
+    if (!raw) return 0;
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed.reduce((s: number, l: any) => s + (l.quantity || 0), 0) : 0;
+  } catch { return 0; }
+}
+
+const NAV_LINKS = [
+  { to: '/products',   label: 'Shop',       icon: '🛍️' },
+  { to: '/categories', label: 'Categories', icon: '📂' },
+  { to: '/contact',    label: 'Contact',    icon: '📞' },
+];
 
 export default function Layout({ children }: { children: React.ReactNode }) {
-  const navigate = useNavigate();
-  const token = getAuthToken();
-  const payload = getAuthPayload();
-  const isAdmin = payload?.role === "admin";
+  const navigate  = useNavigate();
+  const location  = useLocation();
+  const token     = getAuthToken();
+  const payload   = getAuthPayload();
+  const isAdmin   = payload?.role === 'admin';
 
-  function onLogout() {
-    logout();
-    navigate("/");
-  }
+  const [menuOpen,   setMenuOpen]   = useState(false);
+  const [cartCount,  setCartCount]  = useState(getCartCount);
+  const [scrolled,   setScrolled]   = useState(false);
+  const [newsEmail,  setNewsEmail]  = useState('');
+  const [newsSent,   setNewsSent]   = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  // Close menu on route change
+  useEffect(() => { setMenuOpen(false); }, [location.pathname]);
+
+  // Cart count polling
+  useEffect(() => {
+    const onStorage = () => setCartCount(getCartCount());
+    window.addEventListener('storage', onStorage);
+    const id = setInterval(() => setCartCount(getCartCount()), 800);
+    return () => { window.removeEventListener('storage', onStorage); clearInterval(id); };
+  }, []);
+
+  // Scroll shadow
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 10);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  // Close menu on outside click
+  useEffect(() => {
+    if (!menuOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) setMenuOpen(false);
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [menuOpen]);
+
+  function onLogout() { logout(); navigate('/'); }
+
+  const isActive = (path: string) =>
+    path === '/products'
+      ? location.pathname.startsWith('/products')
+      : location.pathname === path;
+
+  const Logo = () => (
+    <svg width="36" height="36" viewBox="0 0 38 38" fill="none" aria-hidden="true">
+      <circle cx="19" cy="19" r="19" fill="#8b5e3c"/>
+      <ellipse cx="19" cy="22" rx="11" ry="6" fill="#c89f65" stroke="#fff8ee" strokeWidth="0.8"/>
+      <ellipse cx="19" cy="19" rx="11" ry="6" fill="#a0703a" stroke="#fff8ee" strokeWidth="0.8"/>
+      <ellipse cx="19" cy="16" rx="8"  ry="4" fill="#c89f65" stroke="#fff8ee" strokeWidth="0.8"/>
+      <ellipse cx="19" cy="13.5" rx="5" ry="2.5" fill="#a0703a" stroke="#fff8ee" strokeWidth="0.8"/>
+      <line x1="10" y1="19" x2="28" y2="19" stroke="#fff8ee" strokeWidth="0.6" strokeDasharray="2,2"/>
+      <line x1="11" y1="22" x2="27" y2="22" stroke="#fff8ee" strokeWidth="0.6" strokeDasharray="2,2"/>
+      <line x1="13" y1="16" x2="25" y2="16" stroke="#fff8ee" strokeWidth="0.6" strokeDasharray="2,2"/>
+      <path d="M16 13.5 Q19 8 22 13.5" stroke="#fff8ee" strokeWidth="1.2" fill="none" strokeLinecap="round"/>
+    </svg>
+  );
 
   return (
-    <div>
-      <header className="nav">
+    <div className="site-wrapper">
+      {/* Announce bar */}
+      <div className="announce-bar" role="banner">
+        🌿 Free delivery on orders over RWF 20,000 &nbsp;·&nbsp; Authentic Rwandan crafts &nbsp;·&nbsp; Support local artisans
+      </div>
+
+      {/* Main nav */}
+      <header className={`nav${scrolled ? ' nav-scrolled' : ''}`} ref={menuRef}>
         <div className="container navInner">
-          <div className="brand">
-            <Link to="/" style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <svg width="38" height="38" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="19" cy="19" r="19" fill="#8b5e3c"/>
-                {/* Woven basket pattern */}
-                <ellipse cx="19" cy="22" rx="11" ry="6" fill="#c89f65" stroke="#fff8ee" strokeWidth="0.8"/>
-                <ellipse cx="19" cy="19" rx="11" ry="6" fill="#a0703a" stroke="#fff8ee" strokeWidth="0.8"/>
-                <ellipse cx="19" cy="16" rx="8" ry="4" fill="#c89f65" stroke="#fff8ee" strokeWidth="0.8"/>
-                <ellipse cx="19" cy="13.5" rx="5" ry="2.5" fill="#a0703a" stroke="#fff8ee" strokeWidth="0.8"/>
-                {/* Weave lines */}
-                <line x1="10" y1="19" x2="28" y2="19" stroke="#fff8ee" strokeWidth="0.6" strokeDasharray="2,2"/>
-                <line x1="11" y1="22" x2="27" y2="22" stroke="#fff8ee" strokeWidth="0.6" strokeDasharray="2,2"/>
-                <line x1="13" y1="16" x2="25" y2="16" stroke="#fff8ee" strokeWidth="0.6" strokeDasharray="2,2"/>
-                {/* Handle */}
-                <path d="M16 13.5 Q19 8 22 13.5" stroke="#fff8ee" strokeWidth="1.2" fill="none" strokeLinecap="round"/>
-              </svg>
-              <span style={{ fontFamily: '"Iowan Old Style", Georgia, serif', fontWeight: 800, fontSize: 17, color: '#4d2f17', letterSpacing: 0.3 }}>DellCraft Rwanda</span>
-            </Link>
-          </div>
 
-          <nav className="menu">
-            <Link to="/products">Products</Link>
-            <Link to="/categories">Categories</Link>
-            <Link to="/contact">Contact</Link>
-            <Link to="/cart">Cart</Link>
-            <Link to="/wishlist">Wishlist</Link>
-            <Link to="/suggested-products">Suggested</Link>
-            <Link to="/features">Features</Link>
+          {/* Brand */}
+          <Link to="/" className="brand" aria-label="AfriCraft Rwanda home">
+            <div className="logo-wrap"><Logo /></div>
+            <span className="brand-name">AfriCraft Rwanda</span>
+          </Link>
 
+          {/* Desktop links */}
+          <nav className="desktop-menu" aria-label="Main navigation">
+            {NAV_LINKS.map(({ to, label }) => (
+              <Link key={to} to={to} className={`nav-link${isActive(to) ? ' active' : ''}`}>
+                {label}
+              </Link>
+            ))}
+          </nav>
+
+          {/* Right actions */}
+          <div className="nav-actions">
             {!token ? (
               <>
-                <Link to="/login">Login</Link>
-                <Link to="/register">Register</Link>
+                <Link to="/login"    className="nav-link hide-sm">Sign in</Link>
+                <Link to="/register" className="btn primary nav-cta">Get started</Link>
               </>
             ) : (
               <>
-                <Link to="/profile">My Profile</Link>
-                <Link to="/orders">My Orders</Link>
-                <Link to="/payment-simulation">Payment</Link>
-                {isAdmin ? (
-                  <>
-                    <Link to="/admin">Admin</Link>
-                    <Link to="/admin/reviews">Review moderation</Link>
-                    <Link to="/admin/orders">Orders</Link>
-                    <Link to="/customers">Customers</Link>
-                  </>
-                ) : null}
-                <button
-                  className="btn"
-                  style={{ cursor: "pointer" }}
-                  onClick={onLogout}
-                  type="button"
-                >
-                  Logout
-                </button>
+                <Link to="/profile"  className="nav-link hide-sm" aria-label="My profile">
+                  <span className="nav-icon">👤</span>
+                </Link>
+                <Link to="/wishlist" className="nav-link hide-sm" aria-label="Wishlist">
+                  <span className="nav-icon">♡</span>
+                </Link>
+                <Link to="/orders"   className="nav-link hide-sm" aria-label="My orders">
+                  <span className="nav-icon">📦</span>
+                </Link>
+                {isAdmin && (
+                  <Link to="/admin" className="nav-link hide-sm admin-badge">Admin</Link>
+                )}
+                <button className="nav-logout hide-sm" onClick={onLogout}>Logout</button>
               </>
             )}
-          </nav>
+
+            <Link to="/cart" className="cart-btn" aria-label={`Cart, ${cartCount} item${cartCount !== 1 ? 's' : ''}`}>
+              <span aria-hidden="true">🛒</span>
+              {cartCount > 0 && (
+                <span className="cart-badge" aria-hidden="true">{cartCount > 99 ? '99+' : cartCount}</span>
+              )}
+            </Link>
+
+            <button
+              className="hamburger"
+              onClick={() => setMenuOpen(!menuOpen)}
+              aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+              aria-expanded={menuOpen}
+              aria-controls="mobile-menu"
+            >
+              <span className={`ham-line${menuOpen ? ' open' : ''}`}/>
+              <span className={`ham-line${menuOpen ? ' open' : ''}`}/>
+              <span className={`ham-line${menuOpen ? ' open' : ''}`}/>
+            </button>
+          </div>
         </div>
+
+        {/* Mobile drawer */}
+        {menuOpen && (
+          <div className="mobile-menu" id="mobile-menu" role="dialog" aria-label="Mobile navigation">
+            <div className="mobile-menu-inner">
+              <div className="mob-section-label">Shop</div>
+              {NAV_LINKS.map(({ to, label, icon }) => (
+                <Link key={to} to={to} className={`mob-link${isActive(to) ? ' active' : ''}`}>
+                  {icon} {label}
+                </Link>
+              ))}
+              <Link to="/cart" className="mob-link">
+                🛒 Cart {cartCount > 0 && `(${cartCount})`}
+              </Link>
+
+              <div className="mob-divider"/>
+
+              {!token ? (
+                <>
+                  <div className="mob-section-label">Account</div>
+                  <Link to="/login"    className="mob-link">🔑 Sign in</Link>
+                  <Link to="/register" className="mob-link mob-link-primary">✨ Create account</Link>
+                </>
+              ) : (
+                <>
+                  <div className="mob-section-label">Account</div>
+                  <Link to="/profile"  className="mob-link">👤 My Profile</Link>
+                  <Link to="/orders"   className="mob-link">📦 My Orders</Link>
+                  <Link to="/wishlist" className="mob-link">♡ Wishlist</Link>
+                  {isAdmin && (
+                    <>
+                      <div className="mob-divider"/>
+                      <div className="mob-section-label">Admin</div>
+                      <Link to="/admin"          className="mob-link">⚙️ Dashboard</Link>
+                      <Link to="/admin/products" className="mob-link">📦 Products</Link>
+                      <Link to="/admin/orders"   className="mob-link">🧾 Orders</Link>
+                      <Link to="/admin/reviews"  className="mob-link">⭐ Reviews</Link>
+                      <Link to="/customers"      className="mob-link">👥 Customers</Link>
+                    </>
+                  )}
+                  <div className="mob-divider"/>
+                  <button className="mob-link mob-logout" onClick={onLogout}>🚪 Logout</button>
+                </>
+              )}
+            </div>
+          </div>
+        )}
       </header>
 
-      <main>{children}</main>
+      <main className="main-content" id="main-content">
+        {children}
+      </main>
+
+      {/* Footer */}
+      <footer className="site-footer" aria-label="Site footer">
+        <div className="container">
+          <div className="footer-grid">
+
+            {/* Brand + newsletter */}
+            <div>
+              <Link to="/" className="footer-brand">
+                <svg width="28" height="28" viewBox="0 0 38 38" fill="none" aria-hidden="true">
+                  <circle cx="19" cy="19" r="19" fill="#8b5e3c"/>
+                  <ellipse cx="19" cy="22" rx="11" ry="6" fill="#c89f65" stroke="#fff8ee" strokeWidth="0.8"/>
+                  <ellipse cx="19" cy="19" rx="11" ry="6" fill="#a0703a" stroke="#fff8ee" strokeWidth="0.8"/>
+                  <ellipse cx="19" cy="16" rx="8"  ry="4" fill="#c89f65" stroke="#fff8ee" strokeWidth="0.8"/>
+                </svg>
+                <span>AfriCraft Rwanda</span>
+              </Link>
+              <p className="footer-tagline">
+                Authentic handmade goods from Rwanda's finest artisans. Every purchase supports a local maker.
+              </p>
+              <div className="footer-newsletter">
+                {newsSent ? (
+                  <span style={{ color: '#86efac', fontSize: 13, fontWeight: 600 }}>✓ You're subscribed!</span>
+                ) : (
+                  <>
+                    <input
+                      type="email"
+                      placeholder="Your email address"
+                      value={newsEmail}
+                      onChange={(e) => setNewsEmail(e.target.value)}
+                      aria-label="Newsletter email"
+                    />
+                    <button
+                      onClick={() => { if (newsEmail) setNewsSent(true); }}
+                      aria-label="Subscribe to newsletter"
+                    >
+                      Subscribe
+                    </button>
+                  </>
+                )}
+              </div>
+              <div className="footer-socials">
+                <a href="#" className="social-btn" aria-label="Facebook">📘</a>
+                <a href="#" className="social-btn" aria-label="Instagram">📸</a>
+                <a href="#" className="social-btn" aria-label="Twitter">🐦</a>
+              </div>
+            </div>
+
+            {/* Shop links */}
+            <div>
+              <div className="footer-col-title">Shop</div>
+              <nav className="footer-links" aria-label="Shop links">
+                <Link to="/products">All Products</Link>
+                <Link to="/categories">Categories</Link>
+                <Link to="/wishlist">Wishlist</Link>
+                <Link to="/cart">Cart</Link>
+              </nav>
+            </div>
+
+            {/* Account links */}
+            <div>
+              <div className="footer-col-title">Account</div>
+              <nav className="footer-links" aria-label="Account links">
+                <Link to="/login">Sign In</Link>
+                <Link to="/register">Register</Link>
+                <Link to="/orders">My Orders</Link>
+                <Link to="/profile">Profile</Link>
+              </nav>
+            </div>
+
+            {/* Contact */}
+            <div>
+              <div className="footer-col-title">Contact</div>
+              <div className="footer-links">
+                <a href="mailto:hello@africraft.rw">hello@africraft.rw</a>
+                <a href="tel:+250794049090">+250 794 049 090</a>
+                <Link to="/contact">Contact Us</Link>
+                <span>Kigali, Rwanda</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="footer-bottom">
+            <span>© {new Date().getFullYear()} AfriCraft Rwanda. All rights reserved.</span>
+            <div className="footer-badges">
+              <span className="footer-badge">🔒 Secure</span>
+              <span className="footer-badge">🌿 Ethical</span>
+              <span className="footer-badge">🇷🇼 Made in Rwanda</span>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

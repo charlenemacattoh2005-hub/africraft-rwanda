@@ -1,0 +1,18 @@
+/* ═══════════════════════════════════════════════════════════════
+   Admin styles — modular entry point
+   Each file owns exactly one feature. Do not add styles here.
+   ═══════════════════════════════════════════════════════════════ */
+
+@import './admin/variables.css';
+@import './admin/layout.css';
+@import './admin/sidebar.css';
+@import './admin/dashboard.css';
+@import './admin/cards.css';
+@import './admin/tables.css';
+@import './admin/badges.css';
+@import './admin/products.css';
+@import './admin/orders.css';
+@import './admin/customers.css';
+@import './admin/analytics.css';
+@import './admin/settings.css';
+@import './admin/responsive.css';

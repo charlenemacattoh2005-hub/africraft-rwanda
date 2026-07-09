@@ -1,0 +1,24 @@
+/* ── Analytics ──────────────────────────────────────────────── */
+.admin-chart-placeholder {
+  height: 200px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, rgba(194,65,12,.05), rgba(217,119,6,.08));
+  border: 1px dashed rgba(194,65,12,.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.admin-metric-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(194,65,12,.06);
+  font-size: 13px;
+}
+.admin-metric-row:last-child { border-bottom: none; }
+.admin-metric-label { color: var(--muted); }
+.admin-metric-value { font-weight: 700; color: var(--text); }

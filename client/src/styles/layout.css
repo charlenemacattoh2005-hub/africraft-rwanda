@@ -1,0 +1,126 @@
+/* ═══════════════════════════════════════════════════════════════
+   LAYOUT — Container, page, grid, buttons, inputs, site wrapper,
+   hero section
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Site wrapper ───────────────────────────────────────────── */
+.site-wrapper  { display: flex; flex-direction: column; min-height: 100vh; }
+.main-content  { flex: 1; }
+
+/* ── Container & page ───────────────────────────────────────── */
+.container { width: min(var(--container-max), 94vw); margin: 0 auto; }
+.page      { padding: var(--space-6) 0 90px; }
+
+/* ── 12-column grid ─────────────────────────────────────────── */
+.grid   { display: grid; grid-template-columns: repeat(12, 1fr); gap: var(--space-4); }
+.col-12 { grid-column: span 12; }
+@media (min-width: 768px) {
+  .col-4 { grid-column: span 4; }
+  .col-6 { grid-column: span 6; }
+  .col-8 { grid-column: span 8; }
+}
+
+/* ── Buttons ────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  padding: 10px 18px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.95);
+  color: var(--text);
+  font-size: var(--text-base);
+  font-weight: var(--weight-semibold);
+  transition: var(--transition-base);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.btn:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+
+.btn.primary {
+  background: linear-gradient(135deg, #c2410c 0%, #ea580c 60%, #d97706 100%);
+  background-size: 200% 100%;
+  border-color: transparent;
+  color: #fff;
+  box-shadow: 0 6px 20px rgba(194, 65, 12, 0.38);
+  animation: btnGradient 4s ease infinite;
+}
+.btn.primary:hover { box-shadow: 0 10px 30px rgba(194, 65, 12, 0.5); transform: translateY(-2px); }
+
+.btn.danger {
+  background: rgba(220, 38, 38, 0.09);
+  border-color: rgba(220, 38, 38, 0.25);
+  color: var(--danger);
+}
+.btn.danger:hover { background: rgba(220, 38, 38, 0.15); }
+
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+  animation: none !important;
+}
+
+/* ── Inputs ─────────────────────────────────────────────────── */
+.input {
+  width: 100%;
+  padding: 11px 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.95);
+  color: var(--text);
+  font-size: var(--text-base);
+  font-family: var(--font-sans);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.input:focus {
+  border-color: rgba(194, 65, 12, 0.5);
+  box-shadow: 0 0 0 3px rgba(194, 65, 12, 0.1);
+}
+.input:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* ── Hero section ───────────────────────────────────────────── */
+.classic-hero {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius);
+  background:
+    linear-gradient(120deg, rgba(28,10,0,0.85) 0%, rgba(28,10,0,0.55) 50%, rgba(28,10,0,0.25) 100%),
+    url('https://afrotidecrafts.com/wp-content/uploads/2024/07/Rwandese-Grass-Agaseke-Peace-basket.jpg') center/cover no-repeat;
+  color: #fff;
+  border: 1px solid rgba(194, 65, 12, 0.2);
+  box-shadow: var(--shadow-xl);
+  animation: heroAura 8s ease-in-out infinite alternate;
+}
+.classic-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(217,119,6,0.12) 0%, transparent 60%);
+  pointer-events: none;
+}
+.classic-hero > * { position: relative; z-index: var(--z-base); }
+
+/* ── Summary card ───────────────────────────────────────────── */
+.summary-card {
+  padding: var(--space-5);
+  border-radius: var(--radius);
+  background: linear-gradient(135deg, rgba(194,65,12,0.07), rgba(217,119,6,0.11));
+  border: 1px solid rgba(194, 65, 12, 0.14);
+}
+
+/* ── Utility: hide on small ─────────────────────────────────── */
+.hide-sm { display: flex; }
+
+/* ── Responsive ─────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .h1 { font-size: var(--text-xl); }
+}
+@media (max-width: 480px) {
+  .btn { padding: 9px 14px; font-size: var(--text-sm); }
+}

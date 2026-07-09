@@ -35,17 +35,23 @@ function Inner() {
   return (
     <>
       <div className="accent-bar" />
-      <div className="h1" style={{ marginBottom: 4 }}>Customers</div>
-      <p className="p" style={{ marginBottom: 20 }}>All registered customers on the platform.</p>
-
-      <div style={{ display:'flex', gap:10, flexWrap:'wrap', marginBottom:20 }}>
-        <input className="input" style={{ maxWidth:300 }} placeholder="Search by name or email…"
-          value={search} onChange={e => setSearch(e.target.value)} />
-        <div className="badge" style={{ alignSelf:'center' }}>{filtered.length} customers</div>
+      <div className="admin-page-header">
+        <div className="admin-page-title">Customers</div>
+        <p className="admin-page-sub">All registered customers on the platform.</p>
       </div>
 
-      {loading && <div className="skeleton" style={{ height:200 }} />}
-      {error && <div className="badge" style={{ borderColor:'rgba(220,38,38,.3)', color:'#dc2626', background:'rgba(220,38,38,.08)' }}>{error}</div>}
+      <div className="admin-toolbar">
+        <input className="input" style={{ maxWidth: 300 }} placeholder="Search by name or email…"
+          value={search} onChange={e => setSearch(e.target.value)} />
+        <span className="admin-toolbar-count">{filtered.length} customers</span>
+      </div>
+
+      {loading && <div className="skeleton" style={{ height: 200 }} />}
+      {error && (
+        <div className="badge" style={{ borderColor: 'rgba(220,38,38,.3)', color: '#dc2626', background: 'rgba(220,38,38,.08)' }}>
+          {error}
+        </div>
+      )}
 
       {!loading && (
         <div className="dash-card">
@@ -55,16 +61,14 @@ function Inner() {
             </thead>
             <tbody>
               {filtered.length === 0 && (
-                <tr><td colSpan={5} style={{ textAlign:'center', padding:24, color:'var(--muted)' }}>No customers found.</td></tr>
+                <tr><td colSpan={5} style={{ textAlign: 'center', padding: 24, color: 'var(--muted)' }}>No customers found.</td></tr>
               )}
               {filtered.map(c => (
                 <tr key={c._id}>
                   <td>
-                    <div style={{ display:'flex', alignItems:'center', gap:10 }}>
-                      <div style={{ width:36, height:36, borderRadius:'50%', background:'linear-gradient(135deg,#c2410c,#d97706)', display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontWeight:800, fontSize:14, flexShrink:0 }}>
-                        {c.fullName?.[0]?.toUpperCase() || '?'}
-                      </div>
-                      <span style={{ fontWeight:700 }}>{c.fullName}</span>
+                    <div className="admin-name-cell">
+                      <div className="admin-avatar">{c.fullName?.[0]?.toUpperCase() || '?'}</div>
+                      <span style={{ fontWeight: 700 }}>{c.fullName}</span>
                     </div>
                   </td>
                   <td className="small">{c.email}</td>

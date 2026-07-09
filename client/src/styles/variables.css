@@ -1,0 +1,101 @@
+/* ═══════════════════════════════════════════════════════════════
+   VARIABLES — Design tokens (colors, spacing, radius, shadows,
+   typography, z-index, transitions)
+   ═══════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── Colors ─────────────────────────────────────────────── */
+  --color-bg:        #fdf8f3;
+  --color-card:      #ffffff;
+  --color-text:      #1a0f00;
+  --color-muted:     #7c5c3e;
+  --color-primary:   #c2410c;
+  --color-primary2:  #ea580c;
+  --color-gold:      #d97706;
+  --color-green:     #15803d;
+  --color-danger:    #dc2626;
+  --color-border:    rgba(194, 65, 12, 0.15);
+  --color-overlay:   rgba(28, 10, 0, 0.55);
+
+  /* ── Semantic aliases (used throughout components) ───────── */
+  --bg:      var(--color-bg);
+  --card:    var(--color-card);
+  --text:    var(--color-text);
+  --muted:   var(--color-muted);
+  --primary: var(--color-primary);
+  --primary2:var(--color-primary2);
+  --gold:    var(--color-gold);
+  --green:   var(--color-green);
+  --danger:  var(--color-danger);
+  --border:  var(--color-border);
+
+  /* ── Shadows ─────────────────────────────────────────────── */
+  --shadow-sm:  0 2px 10px rgba(194, 65, 12, 0.06);
+  --shadow-md:  0 8px 32px rgba(194, 65, 12, 0.10);
+  --shadow-lg:  0 16px 48px rgba(194, 65, 12, 0.14);
+  --shadow-xl:  0 24px 60px rgba(194, 65, 12, 0.22);
+  --shadow:     var(--shadow-md);
+
+  /* ── Border radius ───────────────────────────────────────── */
+  --radius-sm:  8px;
+  --radius-md:  12px;
+  --radius-lg:  18px;
+  --radius-xl:  24px;
+  --radius-full: 999px;
+  --radius:     var(--radius-lg);
+
+  /* ── Spacing scale ───────────────────────────────────────── */
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-8:  32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* ── Typography ──────────────────────────────────────────── */
+  --font-sans:  ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-serif: "Georgia", "Palatino Linotype", serif;
+
+  --text-xs:   11px;
+  --text-sm:   12px;
+  --text-base: 14px;
+  --text-md:   16px;
+  --text-lg:   18px;
+  --text-xl:   22px;
+  --text-2xl:  26px;
+  --text-3xl:  32px;
+
+  --weight-normal:   400;
+  --weight-medium:   500;
+  --weight-semibold: 600;
+  --weight-bold:     700;
+  --weight-extrabold:800;
+  --weight-black:    900;
+
+  --leading-tight:  1.2;
+  --leading-normal: 1.5;
+  --leading-relaxed:1.7;
+
+  /* ── Layout ──────────────────────────────────────────────── */
+  --nav-h:         66px;
+  --container-max: 1160px;
+  --sidebar-w:     240px;
+  --admin-sidebar-w: 220px;
+
+  /* ── Z-index scale ───────────────────────────────────────── */
+  --z-base:    1;
+  --z-sticky:  20;
+  --z-nav:     100;
+  --z-mobile:  99;
+  --z-toast:   999;
+  --z-modal:   1000;
+
+  /* ── Transitions ─────────────────────────────────────────── */
+  --transition-fast:   all 0.15s ease;
+  --transition-base:   all 0.2s ease;
+  --transition-slow:   all 0.3s ease;
+}

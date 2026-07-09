@@ -1,0 +1,27 @@
+/* ── Admin data table ───────────────────────────────────────── */
+.dash-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.dash-table th {
+  text-align: left;
+  padding: 12px 22px;
+  background: rgba(194, 65, 12, 0.05);
+  color: var(--primary);
+  font-weight: 700;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-bottom: 2px solid var(--border);
+}
+
+.dash-table td {
+  padding: 14px 22px;
+  border-bottom: 1px solid rgba(194, 65, 12, 0.07);
+  color: var(--text);
+}
+
+.dash-table tr:last-child td { border-bottom: none; }
+.dash-table tr:hover td      { background: rgba(194, 65, 12, 0.03); }

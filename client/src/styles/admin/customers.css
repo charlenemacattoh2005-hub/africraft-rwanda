@@ -1,0 +1,17 @@
+/* ── Customer avatar ────────────────────────────────────────── */
+.admin-avatar {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #c2410c, #d97706);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff;
+  font-weight: 800;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+.admin-name-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}

@@ -1,0 +1,12 @@
+/* ═══════════════════════════════════════════════════════════════
+   RESPONSIVE — Global breakpoint overrides not owned by a single
+   component file
+   ═══════════════════════════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+  .h1           { font-size: var(--text-xl); }
+  .classic-title { font-size: 26px; }
+}
+@media (max-width: 480px) {
+  .btn { padding: 9px 14px; font-size: var(--text-sm); }
+}

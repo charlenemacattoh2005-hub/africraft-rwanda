@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { fetchCategories } from '../services/categories';
+import { CategoryCard, LoadingSkeleton, EmptyState, Badge } from '../components/ui';
 
 const CATEGORY_IMAGES: Record<string, string> = {
   Baskets: 'https://assets.weimgs.com/weimgs/rk/images/wcm/products/202551/0042/woven-seagrass-baskets-2-c.jpg',
@@ -13,8 +14,7 @@ export default function CategoriesPage() {
   useEffect(() => {
     let mounted = true;
     (async () => {
-      setLoading(true);
-      setError(null);
+      setLoading(true); setError(null);
       try {
         const data = await fetchCategories();
         if (!mounted) return;
@@ -22,13 +22,9 @@ export default function CategoriesPage() {
       } catch (err: any) {
         if (!mounted) return;
         setError(err?.message || 'Failed to load categories');
-      } finally {
-        if (mounted) setLoading(false);
-      }
+      } finally { if (mounted) setLoading(false); }
     })();
-    return () => {
-      mounted = false;
-    };
+    return () => { mounted = false; };
   }, []);
 
   return (
@@ -37,37 +33,31 @@ export default function CategoriesPage() {
         <div className="h1">Categories</div>
         <p className="p">Filter products by artisan categories.</p>
 
+        {error && (
+          <Badge variant="error" style={{ marginTop: 16 }}>{error}</Badge>
+        )}
+
         {loading ? (
-          <div className="small" style={{ marginTop: 16 }}>
-            Loading categories...
-          </div>
-        ) : null}
-
-        {error ? (
-          <div className="badge" style={{ marginTop: 16, borderColor: 'rgba(251,113,133,.45)' }}>
-            {error}
-          </div>
-        ) : null}
-
-        <div style={{ marginTop: 18, display: 'grid', gap: 14, gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))' }}>
-          {categories.map((category) => (
-            <div key={category._id} className="card" style={{ overflow: 'hidden' }}>
-              <div style={{ height: 150, background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)' }}>
-                {category.imageUrl || CATEGORY_IMAGES[category.name] ? (
-                  <img src={category.imageUrl || CATEGORY_IMAGES[category.name]} alt={category.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                ) : (
-                  <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, color: '#92400e', textAlign: 'center', padding: 12 }}>
-                    {category.name}
-                  </div>
-                )}
+          <div style={{ marginTop: 18, display: 'grid', gap: 14, gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))' }}>
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="card" style={{ overflow: 'hidden' }}>
+                <div className="skeleton" style={{ height: 150 }} />
+                <div style={{ padding: 16, display: 'grid', gap: 8 }}>
+                  <div className="skeleton" style={{ height: 16, borderRadius: 8 }} />
+                  <div className="skeleton" style={{ height: 12, width: '70%', borderRadius: 8 }} />
+                </div>
               </div>
-              <div style={{ padding: 16 }}>
-                <div style={{ fontWeight: 800 }}>{category.name}</div>
-                <div className="small" style={{ marginTop: 6 }}>{category.description || 'No description yet.'}</div>
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        ) : categories.length === 0 && !error ? (
+          <EmptyState icon="🏪" title="No categories yet" description="Categories will appear here once added." />
+        ) : (
+          <div style={{ marginTop: 18, display: 'grid', gap: 14, gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))' }}>
+            {categories.map((cat) => (
+              <CategoryCard key={cat._id} category={cat} imageOverride={CATEGORY_IMAGES[cat.name]} />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

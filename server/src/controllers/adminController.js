@@ -7,23 +7,52 @@ export async function getAdminStats(req, res, next) {
     const orderCount   = await Order.countDocuments();
     const userCount    = await User.countDocuments({ role: 'customer' });
     const productCount = await Product.countDocuments({ isActive: true });
+
     const sales = await Order.aggregate([
       { $group: { _id: null, totalSales: { $sum: '$total' }, totalOrders: { $sum: 1 } } },
     ]);
+
     const topProducts = await Order.aggregate([
       { $unwind: '$items' },
-      { $group: { _id: '$items.productId', name: { $first: '$items.name' }, qty: { $sum: '$items.quantity' }, revenue: { $sum: '$items.lineTotal' } } },
+      {
+        $group: {
+          _id: '$items.productId',
+          name:    { $first: '$items.name' },
+          qty:     { $sum: '$items.quantity' },
+          revenue: { $sum: '$items.lineTotal' },
+        },
+      },
       { $sort: { qty: -1 } },
       { $limit: 5 },
     ]);
-    const recentOrders = await Order.find().sort({ createdAt: -1 }).limit(5).lean();
+
+    const recentOrders = await Order.find()
+      .sort({ createdAt: -1 })
+      .limit(10)
+      .lean();
+
+    const lowStock = await Product.find({ isActive: true, stock: { $lte: 5 } })
+      .select('name stock')
+      .sort({ stock: 1 })
+      .limit(10)
+      .lean();
+
+    const recentCustomers = await User.find({ role: 'customer' })
+      .select('fullName email createdAt')
+      .sort({ createdAt: -1 })
+      .limit(6)
+      .lean();
 
     return res.json({
-      orderCount, userCount, productCount,
-      totalSales:   sales[0]?.totalSales  || 0,
-      totalOrders:  sales[0]?.totalOrders || 0,
+      orderCount,
+      userCount,
+      productCount,
+      totalSales:      sales[0]?.totalSales  || 0,
+      totalOrders:     sales[0]?.totalOrders || 0,
       topProducts,
       recentOrders,
+      lowStock,
+      recentCustomers,
     });
   } catch (err) { return next(err); }
 }
@@ -39,7 +68,7 @@ export async function updateOrderStatus(req, res, next) {
   try {
     const { id } = req.params;
     const { status } = req.body;
-    const allowed = ['Pending','Confirmed','Packaging','Shipped','Delivered','Cancelled'];
+    const allowed = ['pending','confirmed','paid','shipped','completed','cancelled'];
     if (!allowed.includes(status)) return res.status(400).json({ message: 'Invalid status' });
     const order = await Order.findByIdAndUpdate(id, { status }, { new: true });
     if (!order) return res.status(404).json({ message: 'Order not found' });

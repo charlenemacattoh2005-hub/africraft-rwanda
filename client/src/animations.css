@@ -1,0 +1,295 @@
+/* ═══════════════════════════════════════════════════════════════
+   ANIMATIONS — All keyframes and animation utility classes
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Body background pulse ──────────────────────────────────── */
+@keyframes bodyPulse {
+  0%   { background-position: 0% 0%, 100% 20%, 40% 100%; }
+  100% { background-position: 5% 5%, 95% 25%, 45% 95%; }
+}
+
+/* ── Logo beat ──────────────────────────────────────────────── */
+@keyframes logoBeat {
+  0%,100% { transform: scale(1);    filter: drop-shadow(0 4px 8px rgba(194,65,12,.35)); }
+  50%     { transform: scale(1.07); filter: drop-shadow(0 6px 14px rgba(217,119,6,.5)); }
+}
+
+/* ── Button gradient shift ──────────────────────────────────── */
+@keyframes btnGradient {
+  0%,100% { background-position: 0% 50%; }
+  50%     { background-position: 100% 50%; }
+}
+
+/* ── Hero aura glow ─────────────────────────────────────────── */
+@keyframes heroAura {
+  0%   { box-shadow: 0 24px 60px rgba(194,65,12,.22); }
+  100% { box-shadow: 0 28px 70px rgba(217,119,6,.32); }
+}
+
+/* ── Fade slide down (hero badge) ───────────────────────────── */
+@keyframes fadeSlideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ── Fade slide up (hero text) ──────────────────────────────── */
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ── Spotlight card pop in ──────────────────────────────────── */
+@keyframes spotIn {
+  from { opacity: 0; transform: scale(.92); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ── Skeleton shimmer ───────────────────────────────────────── */
+@keyframes skeletonPulse {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ── Shimmer bar (dash stat top border) ─────────────────────── */
+@keyframes shimmerBar {
+  0%,100% { opacity: 1; }
+  50%     { opacity: .55; }
+}
+
+/* ── Accent bar scroll ──────────────────────────────────────── */
+@keyframes accentMove {
+  0%   { background-position: 0% 50%; }
+  100% { background-position: 300% 50%; }
+}
+
+/* ── Announce bar scroll ────────────────────────────────────── */
+@keyframes announceScroll {
+  0%   { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+
+/* ── Cart badge pop ─────────────────────────────────────────── */
+@keyframes badgePop {
+  0%   { transform: scale(0); }
+  70%  { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+/* ── Mobile menu slide down ─────────────────────────────────── */
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ── Toast slide in ─────────────────────────────────────────── */
+@keyframes toastIn {
+  from { opacity: 0; transform: translateY(16px) scale(.96); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ── Spin (loading spinner) ─────────────────────────────────── */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Auth left panel glow ───────────────────────────────────── */
+@keyframes authLeftGlow {
+  0%   { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
+}
+
+/* ── Order confirmation success bounce ──────────────────────── */
+@keyframes successBounce {
+  0%   { transform: scale(0) rotate(-10deg); opacity: 0; }
+  60%  { transform: scale(1.15) rotate(3deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0deg); }
+}
+
+/* ── Pulse ring (for success icon) ─────────────────────────── */
+@keyframes pulseRing {
+  0%   { transform: scale(1);   opacity: .6; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+
+/* ── Float (decorative elements) ───────────────────────────── */
+@keyframes float {
+  0%,100% { transform: translateY(0); }
+  50%     { transform: translateY(-10px); }
+}
+
+/* ── Fade in ────────────────────────────────────────────────── */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ── Scale in ───────────────────────────────────────────────── */
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(.94); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ANIMATION UTILITY CLASSES
+   ═══════════════════════════════════════════════════════════════ */
+
+.anim-fade-in        { animation: fadeIn .4s ease both; }
+.anim-scale-in       { animation: scaleIn .35s ease both; }
+.anim-slide-up       { animation: fadeSlideUp .5s ease both; }
+.anim-slide-down     { animation: fadeSlideDown .4s ease both; }
+.anim-float          { animation: float 4s ease-in-out infinite; }
+.anim-spin           { animation: spin .7s linear infinite; }
+
+.delay-1 { animation-delay: .1s; }
+.delay-2 { animation-delay: .2s; }
+.delay-3 { animation-delay: .3s; }
+.delay-4 { animation-delay: .4s; }
+.delay-5 { animation-delay: .5s; }
+
+/* ── Skeleton loader ────────────────────────────────────────── */
+.skeleton {
+  border-radius: 12px;
+  background: linear-gradient(
+    90deg,
+    rgba(194,65,12,.07) 25%,
+    rgba(217,119,6,.14) 50%,
+    rgba(194,65,12,.07) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeletonPulse 1.4s ease-in-out infinite;
+}
+
+/* ── Auth spinner ───────────────────────────────────────────── */
+.auth-spinner {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,.4);
+  border-top-color: #fff;
+  animation: spin .7s linear infinite;
+  display: inline-block;
+}
+
+/* ── Back to top button ─────────────────────────────────────── */
+.back-to-top {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #c2410c, #d97706);
+  color: #fff;
+  font-size: 20px;
+  box-shadow: 0 8px 26px rgba(194,65,12,.4);
+  z-index: 40;
+  transition: transform .2s, box-shadow .2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.back-to-top:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 36px rgba(194,65,12,.55);
+}
+
+/* ── Hero section animations ────────────────────────────────── */
+.classic-pill {
+  background: rgba(217,119,6,.22);
+  border-color: rgba(217,119,6,.45);
+  color: #fde68a;
+  animation: fadeSlideDown .5s ease forwards;
+}
+.classic-title {
+  font-family: "Georgia","Palatino Linotype",serif;
+  font-size: clamp(28px,4.5vw,46px);
+  line-height: 1.12;
+  color: #fff8f0;
+  margin-top: 14px;
+  animation: fadeSlideUp .6s .1s ease both;
+}
+.classic-lead {
+  color: rgba(255,248,240,.88);
+  max-width: 580px;
+  animation: fadeSlideUp .6s .2s ease both;
+}
+.classic-cta-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+  animation: fadeSlideUp .6s .3s ease both;
+}
+.classic-highlights {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
+  animation: fadeSlideUp .6s .4s ease both;
+}
+.classic-highlights span {
+  padding: 7px 13px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.14);
+  border: 1px solid rgba(255,255,255,.28);
+  color: #fff7e6;
+  font-size: 12px;
+}
+.classic-spotlight {
+  width: 100%;
+  max-width: 240px;
+  padding: 22px;
+  border-radius: var(--radius);
+  border: 1px solid rgba(255,255,255,.2);
+  background: rgba(255,248,235,.94);
+  box-shadow: 0 14px 36px rgba(194,65,12,.18);
+  color: #3f1a00;
+  animation: spotIn .7s .2s ease both;
+}
+.classic-spotlight-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .22em;
+  color: #c2410c;
+}
+.classic-spotlight-title {
+  font-size: 20px;
+  font-weight: 800;
+  margin-top: 8px;
+  color: #7c1d06;
+}
+
+/* ── Status badges (orders) ─────────────────────────────────── */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 11px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+}
+.status-pending   { background: rgba(234,179,8,.12); color: #92400e; border: 1px solid rgba(234,179,8,.3); }
+.status-confirmed { background: rgba(59,130,246,.1);  color: #1d4ed8; border: 1px solid rgba(59,130,246,.25); }
+.status-delivered { background: rgba(34,197,94,.1);   color: #15803d; border: 1px solid rgba(34,197,94,.25); }
+.status-cancelled { background: rgba(239,68,68,.1);   color: #b91c1c; border: 1px solid rgba(239,68,68,.25); }
+
+/* ── Dashboard table ────────────────────────────────────────── */
+.dash-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.dash-table th {
+  text-align: left;
+  padding: 12px 22px;
+  background: rgba(194,65,12,.05);
+  color: var(--primary);
+  font-weight: 700;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  border-bottom: 2px solid var(--border);
+}
+.dash-table td {
+  padding: 14px 22px;
+  border-bottom: 1px solid rgba(194,65,12,.07);
+  color: var(--text);
+}
+.dash-table tr:last-child td { border-bottom: none; }
+.dash-table tr:hover td { background: rgba(194,65,12,.03); }

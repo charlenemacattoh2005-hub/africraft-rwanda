@@ -1,0 +1,41 @@
+/* ── Admin design tokens ────────────────────────────────────── */
+:root {
+  --admin-sidebar-w:          256px;
+  --admin-sidebar-bg:         linear-gradient(180deg, #0f0500 0%, #1c0800 40%, #2a0d00 75%, #1c0800 100%);
+  --admin-nav-color:          rgba(255, 210, 170, 0.65);
+  --admin-nav-hover-bg:       rgba(255, 255, 255, 0.06);
+  --admin-nav-active-bg:      rgba(234, 88, 12, 0.22);
+  --admin-nav-active-color:   #fde68a;
+  --admin-nav-active-border:  #f97316;
+  --admin-content-bg:         #f5f0eb;
+  --admin-card-bg:            #ffffff;
+  --admin-border:             rgba(194, 65, 12, 0.13);
+  --admin-topbar-bg:          rgba(255, 252, 249, 0.96);
+  --admin-topbar-h:           58px;
+
+  /* KPI accent colors */
+  --kpi-revenue:   #c2410c;
+  --kpi-orders:    #d97706;
+  --kpi-customers: #15803d;
+  --kpi-products:  #1d4ed8;
+  --kpi-growth:    #7c3aed;
+  --kpi-pending:   #b45309;
+  --kpi-danger:    #dc2626;
+
+  /* Stock levels */
+  --stock-ok:  #15803d;
+  --stock-low: #d97706;
+  --stock-out: #dc2626;
+
+  /* Chart palette */
+  --chart-1: #ea580c;
+  --chart-2: #f59e0b;
+  --chart-3: #22c55e;
+  --chart-4: #3b82f6;
+  --chart-5: #a855f7;
+
+  /* Elevation */
+  --shadow-card:  0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(194,65,12,.05);
+  --shadow-hover: 0 8px 32px rgba(194,65,12,.14), 0 2px 8px rgba(0,0,0,.06);
+  --shadow-panel: 0 1px 3px rgba(0,0,0,.05), 0 2px 10px rgba(194,65,12,.04);
+}

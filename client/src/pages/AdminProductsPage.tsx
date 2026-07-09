@@ -19,9 +19,7 @@ function Inner() {
   const [editing,  setEditing]  = useState<any>(null);
   const [saving,   setSaving]   = useState(false);
 
-  useEffect(() => {
-    load();
-  }, []);
+  useEffect(() => { load(); }, []);
 
   function load() {
     setLoading(true);
@@ -61,49 +59,55 @@ function Inner() {
   }
 
   const filtered = products.filter(p =>
-    search === '' || p.name?.toLowerCase().includes(search.toLowerCase()) ||
+    search === '' ||
+    p.name?.toLowerCase().includes(search.toLowerCase()) ||
     p.category?.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
     <>
       <div className="accent-bar" />
-      <div className="h1" style={{ marginBottom:4 }}>Products</div>
-      <p className="p" style={{ marginBottom:20 }}>Manage product listings, prices and stock.</p>
-
-      <div style={{ display:'flex', gap:10, flexWrap:'wrap', marginBottom:20 }}>
-        <input className="input" style={{ maxWidth:300 }} placeholder="Search products…"
-          value={search} onChange={e => setSearch(e.target.value)} />
-        <div className="badge" style={{ alignSelf:'center' }}>{filtered.length} products</div>
+      <div className="admin-page-header">
+        <div className="admin-page-title">Products</div>
+        <p className="admin-page-sub">Manage product listings, prices and stock.</p>
       </div>
 
-      {loading && <div className="skeleton" style={{ height:200 }} />}
-      {error && <div className="badge" style={{ borderColor:'rgba(220,38,38,.3)', color:'#dc2626', background:'rgba(220,38,38,.08)' }}>{error}</div>}
+      <div className="admin-toolbar">
+        <input className="input" style={{ maxWidth: 300 }} placeholder="Search products…"
+          value={search} onChange={e => setSearch(e.target.value)} />
+        <span className="admin-toolbar-count">{filtered.length} products</span>
+      </div>
 
-      {/* Edit modal */}
+      {loading && <div className="skeleton" style={{ height: 200 }} />}
+      {error && (
+        <div className="badge" style={{ borderColor: 'rgba(220,38,38,.3)', color: '#dc2626', background: 'rgba(220,38,38,.08)' }}>
+          {error}
+        </div>
+      )}
+
       {editing && (
-        <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.5)', zIndex:100, display:'flex', alignItems:'center', justifyContent:'center' }}>
-          <div className="card" style={{ padding:28, width:'min(480px,94vw)', display:'grid', gap:14 }}>
-            <div className="h1" style={{ fontSize:20 }}>Edit Product</div>
+        <div className="admin-modal-overlay">
+          <div className="admin-modal">
+            <div className="admin-modal-title">Edit Product</div>
             <div>
-              <label className="small">Name</label>
-              <input className="input" value={editing.name} onChange={e => setEditing({...editing, name:e.target.value})} />
+              <label>Name</label>
+              <input className="input" value={editing.name} onChange={e => setEditing({ ...editing, name: e.target.value })} />
             </div>
-            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
+            <div className="admin-modal-grid2">
               <div>
-                <label className="small">Price (RWF)</label>
-                <input className="input" type="number" value={editing.price} onChange={e => setEditing({...editing, price:e.target.value})} />
+                <label>Price (RWF)</label>
+                <input className="input" type="number" value={editing.price} onChange={e => setEditing({ ...editing, price: e.target.value })} />
               </div>
               <div>
-                <label className="small">Stock</label>
-                <input className="input" type="number" value={editing.stock} onChange={e => setEditing({...editing, stock:e.target.value})} />
+                <label>Stock</label>
+                <input className="input" type="number" value={editing.stock} onChange={e => setEditing({ ...editing, stock: e.target.value })} />
               </div>
             </div>
-            <div style={{ display:'flex', alignItems:'center', gap:10 }}>
-              <input type="checkbox" id="active" checked={editing.isActive} onChange={e => setEditing({...editing, isActive:e.target.checked})} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <input type="checkbox" id="active" checked={editing.isActive} onChange={e => setEditing({ ...editing, isActive: e.target.checked })} />
               <label htmlFor="active" className="small">Active (visible to customers)</label>
             </div>
-            <div style={{ display:'flex', gap:10, justifyContent:'flex-end' }}>
+            <div className="admin-modal-footer">
               <button className="btn" onClick={() => setEditing(null)}>Cancel</button>
               <button className="btn primary" onClick={onSave} disabled={saving}>{saving ? 'Saving…' : 'Save changes'}</button>
             </div>
@@ -119,24 +123,24 @@ function Inner() {
             </thead>
             <tbody>
               {filtered.length === 0 && (
-                <tr><td colSpan={6} style={{ textAlign:'center', padding:24, color:'var(--muted)' }}>No products found.</td></tr>
+                <tr><td colSpan={6} style={{ textAlign: 'center', padding: 24, color: 'var(--muted)' }}>No products found.</td></tr>
               )}
               {filtered.map(p => (
                 <tr key={p._id}>
                   <td>
-                    <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+                    <div className="admin-product-cell">
                       {p.imageUrl
-                        ? <img src={p.imageUrl} alt={p.name} style={{ width:40, height:40, borderRadius:8, objectFit:'cover', flexShrink:0 }} />
-                        : <div style={{ width:40, height:40, borderRadius:8, background:'linear-gradient(135deg,#fff3e0,#ffe0b2)', flexShrink:0 }} />
+                        ? <img src={p.imageUrl} alt={p.name} className="admin-product-thumb" />
+                        : <div className="admin-product-thumb-placeholder">🛍️</div>
                       }
-                      <span style={{ fontWeight:700 }}>{p.name}</span>
+                      <span className="admin-product-name-text">{p.name}</span>
                     </div>
                   </td>
                   <td><span className="badge">{p.category}</span></td>
-                  <td style={{ fontWeight:700, color:'#c2410c' }}>RWF {Number(p.price).toLocaleString()}</td>
+                  <td style={{ fontWeight: 700, color: '#c2410c' }}>RWF {Number(p.price).toLocaleString()}</td>
                   <td>
-                    <span className="badge" style={{ borderColor: p.stock < 10 ? 'rgba(220,38,38,.3)' : undefined, color: p.stock < 10 ? '#dc2626' : undefined }}>
-                      {p.stock}
+                    <span className={p.stock === 0 ? 'stock-out' : p.stock < 10 ? 'stock-low' : 'stock-ok'}>
+                      {p.stock === 0 ? 'Out' : p.stock}
                     </span>
                   </td>
                   <td>
@@ -145,9 +149,9 @@ function Inner() {
                     </span>
                   </td>
                   <td>
-                    <div style={{ display:'flex', gap:8 }}>
-                      <button className="btn" style={{ padding:'6px 12px', fontSize:12 }} onClick={() => setEditing({...p})}>✏️ Edit</button>
-                      <button className="btn danger" style={{ padding:'6px 12px', fontSize:12 }} onClick={() => onDelete(p._id, p.name)}>🗑️</button>
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      <button className="btn" style={{ padding: '6px 12px', fontSize: 12 }} onClick={() => setEditing({ ...p })}>✏️ Edit</button>
+                      <button className="btn danger" style={{ padding: '6px 12px', fontSize: 12 }} onClick={() => onDelete(p._id, p.name)}>🗑️</button>
                     </div>
                   </td>
                 </tr>
