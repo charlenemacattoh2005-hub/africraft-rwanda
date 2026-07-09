@@ -23,14 +23,47 @@
 .status-confirmed  { background: rgba(59,130,246,.1);  color: #1d4ed8; border: 1px solid rgba(59,130,246,.24); }
 .status-confirmed::before  { background: #3b82f6; }
 
+.status-paid       { background: rgba(99,102,241,.1);  color: #4338ca; border: 1px solid rgba(99,102,241,.24); }
+.status-paid::before       { background: #6366f1; }
+
 .status-processing { background: rgba(124,58,237,.1);  color: #6d28d9; border: 1px solid rgba(124,58,237,.24); }
 .status-processing::before { background: #7c3aed; }
+
+.status-packed     { background: rgba(20,184,166,.1);  color: #0f766e; border: 1px solid rgba(20,184,166,.24); }
+.status-packed::before     { background: #14b8a6; }
 
 .status-shipped    { background: rgba(8,145,178,.1);   color: #0e7490; border: 1px solid rgba(8,145,178,.24); }
 .status-shipped::before    { background: #0891b2; }
 
+.status-out_for_delivery { background: rgba(59,130,246,.1); color: #1e40af; border: 1px solid rgba(59,130,246,.2); }
+.status-out_for_delivery::before { background: #3b82f6; }
+
 .status-delivered  { background: rgba(34,197,94,.1);   color: #15803d; border: 1px solid rgba(34,197,94,.24); }
 .status-delivered::before  { background: #22c55e; }
 
+.status-completed  { background: rgba(34,197,94,.1);   color: #15803d; border: 1px solid rgba(34,197,94,.24); }
+.status-completed::before  { background: #22c55e; }
+
 .status-cancelled  { background: rgba(239,68,68,.1);   color: #b91c1c; border: 1px solid rgba(239,68,68,.24); }
 .status-cancelled::before  { background: #ef4444; }
+
+.status-returned   { background: rgba(249,115,22,.1);  color: #9a3412; border: 1px solid rgba(249,115,22,.24); }
+.status-returned::before   { background: #f97316; }
+
+.status-refunded   { background: rgba(107,114,128,.1); color: #374151; border: 1px solid rgba(107,114,128,.24); }
+.status-refunded::before   { background: #6b7280; }
+
+.status-active     { background: rgba(34,197,94,.1);   color: #15803d; border: 1px solid rgba(34,197,94,.24); }
+.status-active::before     { background: #22c55e; }
+
+.status-inactive   { background: rgba(107,114,128,.1); color: #374151; border: 1px solid rgba(107,114,128,.2); }
+.status-inactive::before   { background: #6b7280; }
+
+.status-suspended  { background: rgba(239,68,68,.1);   color: #b91c1c; border: 1px solid rgba(239,68,68,.24); }
+.status-suspended::before  { background: #ef4444; }
+
+.status-draft      { background: rgba(107,114,128,.1); color: #374151; border: 1px solid rgba(107,114,128,.2); }
+.status-draft::before      { background: #6b7280; }
+
+.status-archived   { background: rgba(120,113,108,.1); color: #57534e; border: 1px solid rgba(120,113,108,.2); }
+.status-archived::before   { background: #78716c; }

@@ -1,131 +1,121 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import RequireAuth from '../components/RequireAuth';
 import { fetchWishlist, removeWishlist } from '../services/wishlist';
 import { fetchProductById } from '../services/products';
-import { addWishlist } from '../services/wishlist';
-import { Badge, Button, LoadingSkeleton, EmptyState } from '../components/ui';
 
 const CART_KEY = 'africraft_cart_v1';
 
-type WishlistItem = { productId: string };
-type ProductInfo  = { _id: string; name: string; price: number; stock: number; isActive: boolean };
-
 function addToCart(productId: string) {
   try {
-    const raw = localStorage.getItem(CART_KEY);
-    const parsed = raw ? JSON.parse(raw) : [];
-    const lines = Array.isArray(parsed) ? parsed : [];
-    const existing = lines.filter((x: any) => x && typeof x.productId === 'string');
-    const idx = existing.findIndex((x: any) => x.productId === productId);
-    if (idx >= 0) existing[idx].quantity += 1;
-    else existing.push({ productId, quantity: 1 });
-    localStorage.setItem(CART_KEY, JSON.stringify(existing));
+    const lines = JSON.parse(localStorage.getItem(CART_KEY) || '[]');
+    const idx = lines.findIndex((x: any) => x.productId === productId);
+    if (idx >= 0) lines[idx].quantity += 1;
+    else lines.push({ productId, quantity: 1 });
+    localStorage.setItem(CART_KEY, JSON.stringify(lines));
   } catch {}
 }
 
 export default function WishlistPage() {
-  const [items, setItems] = useState<WishlistItem[]>([]);
-  const [products, setProducts] = useState<Record<string, ProductInfo>>({});
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  return <RequireAuth><WishlistInner /></RequireAuth>;
+}
+
+function WishlistInner() {
+  const [items,    setItems]    = useState<any[]>([]);
+  const [products, setProducts] = useState<Record<string, any>>({});
+  const [loading,  setLoading]  = useState(true);
+  const [toast,    setToast]    = useState<string | null>(null);
 
   useEffect(() => {
-    let mounted = true;
-    (async () => {
-      setLoading(true); setError(null);
-      try {
-        const data = await fetchWishlist();
-        if (!mounted) return;
-        setItems(data.items || []);
-      } catch (err: any) {
-        if (!mounted) return;
-        setError(err?.message || 'Failed to load wishlist');
-      } finally { if (mounted) setLoading(false); }
-    })();
-    return () => { mounted = false; };
+    fetchWishlist()
+      .then(d => setItems(d.items || []))
+      .finally(() => setLoading(false));
   }, []);
 
   useEffect(() => {
-    let mounted = true;
-    (async () => {
-      const entries = await Promise.all(
-        items.map(async (item) => {
-          try {
-            const data = await fetchProductById(item.productId);
-            return [item.productId, data.item] as const;
-          } catch { return [item.productId, null] as const; }
-        })
-      );
-      if (!mounted) return;
-      const next: Record<string, ProductInfo> = {};
-      for (const [id, item] of entries) { if (item) next[id] = item; }
-      setProducts(next);
-    })();
-    return () => { mounted = false; };
+    if (!items.length) return;
+    Promise.all(items.map(i => fetchProductById(i.productId).then(d => [i.productId, d.item]).catch(() => [i.productId, null])))
+      .then(entries => {
+        const map: Record<string, any> = {};
+        entries.forEach(([id, p]) => { if (p) map[id as string] = p; });
+        setProducts(map);
+      });
   }, [items]);
 
+  function showToast(msg: string) { setToast(msg); setTimeout(() => setToast(null), 3000); }
+
   async function onRemove(productId: string) {
-    setLoading(true); setError(null);
-    try {
-      await removeWishlist(productId);
-      setItems((cur) => cur.filter((i) => i.productId !== productId));
-    } catch (err: any) {
-      setError(err?.message || 'Failed to remove item');
-    } finally { setLoading(false); }
+    await removeWishlist(productId).catch(() => {});
+    setItems(cur => cur.filter(i => i.productId !== productId));
+    showToast('Removed from wishlist');
   }
 
-  function onAddToCart(productId: string) {
+  function onMoveToCart(productId: string, name: string) {
     addToCart(productId);
-    alert('Moved item to cart');
+    showToast(`${name} added to cart!`);
   }
 
   return (
-    <RequireAuth>
-      <div className="container page">
-        <div className="card" style={{ padding: 20 }}>
-          <div className="h1">Wishlist</div>
-          <p className="p">Save favorite products for later.</p>
+    <div className="container page">
+      {toast && <div className="admin-toast success" style={{ position: 'fixed', top: 20, right: 20, zIndex: 9999 }}>✅ {toast}</div>}
 
-          {error && <Badge variant="error" style={{ marginTop: 16 }}>{error}</Badge>}
-
-          {loading ? (
-            <div style={{ marginTop: 16 }}>
-              <LoadingSkeleton count={3} variant="row" />
-            </div>
-          ) : items.length === 0 && !error ? (
-            <EmptyState
-              icon="❤️"
-              title="Your wishlist is empty"
-              description="Browse products and save your favorites here."
-              action={{ label: 'Browse products', onClick: () => window.location.href = '/products' }}
-            />
-          ) : (
-            <div style={{ marginTop: 18, display: 'grid', gap: 12 }}>
-              {items.map((item) => {
-                const product = products[item.productId];
-                return (
-                  <div key={item.productId} className="card" style={{ padding: 16 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}>
-                      <div>
-                        <div style={{ fontWeight: 800 }}>{product?.name || 'Product unavailable'}</div>
-                        {product && (
-                          <div className="small" style={{ marginTop: 4 }}>
-                            RWF {Number(product.price).toLocaleString()}
-                          </div>
-                        )}
-                      </div>
-                      <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-                        <Button onClick={() => onAddToCart(item.productId)}>Add to cart</Button>
-                        <Button variant="danger" onClick={() => onRemove(item.productId)}>Remove</Button>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
+      <div className="account-header">
+        <div>
+          <h1 className="account-title">❤️ My Wishlist</h1>
+          <p className="account-subtitle">{items.length} saved item{items.length !== 1 ? 's' : ''}</p>
         </div>
+        <Link to="/products" className="btn">Continue shopping</Link>
       </div>
-    </RequireAuth>
+
+      {loading ? (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(240px,1fr))', gap: 16 }}>
+          {[1,2,3,4].map(i => <div key={i} className="skeleton" style={{ height: 320, borderRadius: 16 }} />)}
+        </div>
+      ) : items.length === 0 ? (
+        <div style={{ textAlign: 'center', padding: '60px 20px' }}>
+          <div style={{ fontSize: 64, marginBottom: 16 }}>❤️</div>
+          <div style={{ fontSize: 20, fontWeight: 800, marginBottom: 8 }}>Your wishlist is empty</div>
+          <p style={{ color: '#78716c', marginBottom: 20 }}>Browse products and save your favorites here.</p>
+          <Link to="/products" className="btn primary">Browse products</Link>
+        </div>
+      ) : (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(240px,1fr))', gap: 16 }}>
+          {items.map(item => {
+            const p = products[item.productId];
+            return (
+              <div key={item.productId} className="wishlist-card">
+                <Link to={`/products/${item.productId}`} className="wishlist-img-wrap">
+                  {p?.imageUrl
+                    ? <img src={p.imageUrl} alt={p.name} className="wishlist-img" />
+                    : <div className="wishlist-img-placeholder">🛍️</div>}
+                  {p?.badge && <span className="wishlist-badge">{p.badge}</span>}
+                </Link>
+                <div className="wishlist-body">
+                  <Link to={`/products/${item.productId}`} className="wishlist-name">{p?.name || 'Loading…'}</Link>
+                  <div className="wishlist-category">{p?.category || ''}</div>
+                  <div className="wishlist-price">RWF {p ? Number(p.price).toLocaleString() : '—'}</div>
+                  <div className="wishlist-stock">
+                    {p?.stock === 0
+                      ? <span style={{ color: '#dc2626', fontSize: 12 }}>Out of stock</span>
+                      : <span style={{ color: '#15803d', fontSize: 12 }}>✓ In stock ({p?.stock})</span>}
+                  </div>
+                  <div className="wishlist-actions">
+                    <button className="btn primary" style={{ flex: 1, fontSize: 12 }}
+                      disabled={!p || p.stock === 0}
+                      onClick={() => onMoveToCart(item.productId, p?.name || 'Item')}>
+                      🛒 Add to Cart
+                    </button>
+                    <button className="btn" style={{ fontSize: 12, padding: '8px 12px', color: '#dc2626', borderColor: 'rgba(220,38,38,.3)' }}
+                      onClick={() => onRemove(item.productId)} title="Remove from wishlist">
+                      🗑️
+                    </button>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
   );
 }

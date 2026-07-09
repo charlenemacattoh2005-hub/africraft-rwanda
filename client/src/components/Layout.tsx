@@ -19,18 +19,30 @@ const NAV_LINKS = [
   { to: '/contact',    label: 'Contact',    icon: '📞' },
 ];
 
+const Logo = () => (
+  <svg width="36" height="36" viewBox="0 0 38 38" fill="none" aria-hidden="true">
+    <circle cx="19" cy="19" r="19" fill="#8b5e3c"/>
+    <ellipse cx="19" cy="22" rx="11" ry="6" fill="#c89f65" stroke="#fff8ee" strokeWidth="0.8"/>
+    <ellipse cx="19" cy="19" rx="11" ry="6" fill="#a0703a" stroke="#fff8ee" strokeWidth="0.8"/>
+    <ellipse cx="19" cy="16" rx="8"  ry="4" fill="#c89f65" stroke="#fff8ee" strokeWidth="0.8"/>
+    <ellipse cx="19" cy="13.5" rx="5" ry="2.5" fill="#a0703a" stroke="#fff8ee" strokeWidth="0.8"/>
+    <path d="M16 13.5 Q19 8 22 13.5" stroke="#fff8ee" strokeWidth="1.2" fill="none" strokeLinecap="round"/>
+  </svg>
+);
+
 export default function Layout({ children }: { children: React.ReactNode }) {
   const navigate  = useNavigate();
   const location  = useLocation();
   const token     = getAuthToken();
   const payload   = getAuthPayload();
-  const isAdmin   = payload?.role === 'admin';
+  const role      = payload?.role;
+  const isAdmin   = role === 'admin';
+  const isVendor  = role === 'vendor';
+  const isRider   = role === 'rider';
 
-  const [menuOpen,   setMenuOpen]   = useState(false);
-  const [cartCount,  setCartCount]  = useState(getCartCount);
-  const [scrolled,   setScrolled]   = useState(false);
-  const [newsEmail,  setNewsEmail]  = useState('');
-  const [newsSent,   setNewsSent]   = useState(false);
+  const [menuOpen,  setMenuOpen]  = useState(false);
+  const [cartCount, setCartCount] = useState(getCartCount);
+  const [scrolled,  setScrolled]  = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   // Close menu on route change
@@ -68,26 +80,20 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       ? location.pathname.startsWith('/products')
       : location.pathname === path;
 
-  const Logo = () => (
-    <svg width="36" height="36" viewBox="0 0 38 38" fill="none" aria-hidden="true">
-      <circle cx="19" cy="19" r="19" fill="#8b5e3c"/>
-      <ellipse cx="19" cy="22" rx="11" ry="6" fill="#c89f65" stroke="#fff8ee" strokeWidth="0.8"/>
-      <ellipse cx="19" cy="19" rx="11" ry="6" fill="#a0703a" stroke="#fff8ee" strokeWidth="0.8"/>
-      <ellipse cx="19" cy="16" rx="8"  ry="4" fill="#c89f65" stroke="#fff8ee" strokeWidth="0.8"/>
-      <ellipse cx="19" cy="13.5" rx="5" ry="2.5" fill="#a0703a" stroke="#fff8ee" strokeWidth="0.8"/>
-      <line x1="10" y1="19" x2="28" y2="19" stroke="#fff8ee" strokeWidth="0.6" strokeDasharray="2,2"/>
-      <line x1="11" y1="22" x2="27" y2="22" stroke="#fff8ee" strokeWidth="0.6" strokeDasharray="2,2"/>
-      <line x1="13" y1="16" x2="25" y2="16" stroke="#fff8ee" strokeWidth="0.6" strokeDasharray="2,2"/>
-      <path d="M16 13.5 Q19 8 22 13.5" stroke="#fff8ee" strokeWidth="1.2" fill="none" strokeLinecap="round"/>
-    </svg>
-  );
+  // Which dashboard to link to based on role
+  const dashboardLink = isAdmin ? '/admin' : isVendor ? '/vendor' : isRider ? '/rider' : null;
+  const dashboardLabel = isAdmin ? 'Admin' : isVendor ? 'Vendor' : isRider ? 'Rider' : null;
 
   return (
     <div className="site-wrapper">
+
       {/* Announce bar */}
       <div className="announce-bar" role="banner">
         🌿 Free delivery on orders over RWF 20,000 &nbsp;·&nbsp; Authentic Rwandan crafts &nbsp;·&nbsp; Support local artisans
       </div>
+
+      {/* Skip to main content */}
+      <a href="#main-content" className="skip-link">Skip to main content</a>
 
       {/* Main nav */}
       <header className={`nav${scrolled ? ' nav-scrolled' : ''}`} ref={menuRef}>
@@ -117,19 +123,27 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               </>
             ) : (
               <>
-                <Link to="/profile"  className="nav-link hide-sm" aria-label="My profile">
-                  <span className="nav-icon">👤</span>
+                <Link to="/wishlist" className="nav-icon-btn hide-sm" aria-label="Wishlist">
+                  <span aria-hidden="true">♡</span>
                 </Link>
-                <Link to="/wishlist" className="nav-link hide-sm" aria-label="Wishlist">
-                  <span className="nav-icon">♡</span>
+                <Link to="/orders"   className="nav-icon-btn hide-sm" aria-label="My orders">
+                  <span aria-hidden="true">📦</span>
                 </Link>
-                <Link to="/orders"   className="nav-link hide-sm" aria-label="My orders">
-                  <span className="nav-icon">📦</span>
-                </Link>
-                {isAdmin && (
-                  <Link to="/admin" className="nav-link hide-sm admin-badge">Admin</Link>
+                {dashboardLink && (
+                  <Link to={dashboardLink} className="nav-link hide-sm" style={{
+                    background: 'rgba(194,65,12,.1)', color: '#c2410c',
+                    border: '1px solid rgba(194,65,12,.2)', borderRadius: 8,
+                    padding: '5px 12px', fontSize: 12, fontWeight: 700,
+                  }}>
+                    {dashboardLabel}
+                  </Link>
                 )}
-                <button className="nav-logout hide-sm" onClick={onLogout}>Logout</button>
+                <Link to="/profile"  className="nav-icon-btn hide-sm" aria-label="My profile">
+                  <span aria-hidden="true">👤</span>
+                </Link>
+                <button className="nav-logout hide-sm" onClick={onLogout} aria-label="Sign out">
+                  Logout
+                </button>
               </>
             )}
 
@@ -156,7 +170,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
         {/* Mobile drawer */}
         {menuOpen && (
-          <div className="mobile-menu" id="mobile-menu" role="dialog" aria-label="Mobile navigation">
+          <div className="mobile-menu" id="mobile-menu" role="dialog" aria-label="Mobile navigation" aria-modal="true">
             <div className="mobile-menu-inner">
               <div className="mob-section-label">Shop</div>
               {NAV_LINKS.map(({ to, label, icon }) => (
@@ -167,6 +181,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               <Link to="/cart" className="mob-link">
                 🛒 Cart {cartCount > 0 && `(${cartCount})`}
               </Link>
+              <Link to="/wishlist" className="mob-link">♡ Wishlist</Link>
 
               <div className="mob-divider"/>
 
@@ -178,23 +193,18 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 </>
               ) : (
                 <>
-                  <div className="mob-section-label">Account</div>
-                  <Link to="/profile"  className="mob-link">👤 My Profile</Link>
-                  <Link to="/orders"   className="mob-link">📦 My Orders</Link>
-                  <Link to="/wishlist" className="mob-link">♡ Wishlist</Link>
-                  {isAdmin && (
+                  <div className="mob-section-label">My Account</div>
+                  <Link to="/profile" className="mob-link">👤 My Profile</Link>
+                  <Link to="/orders"  className="mob-link">📦 My Orders</Link>
+                  {dashboardLink && (
                     <>
                       <div className="mob-divider"/>
-                      <div className="mob-section-label">Admin</div>
-                      <Link to="/admin"          className="mob-link">⚙️ Dashboard</Link>
-                      <Link to="/admin/products" className="mob-link">📦 Products</Link>
-                      <Link to="/admin/orders"   className="mob-link">🧾 Orders</Link>
-                      <Link to="/admin/reviews"  className="mob-link">⭐ Reviews</Link>
-                      <Link to="/customers"      className="mob-link">👥 Customers</Link>
+                      <div className="mob-section-label">{dashboardLabel} Panel</div>
+                      <Link to={dashboardLink} className="mob-link">⚙️ Dashboard</Link>
                     </>
                   )}
                   <div className="mob-divider"/>
-                  <button className="mob-link mob-logout" onClick={onLogout}>🚪 Logout</button>
+                  <button className="mob-link mob-logout" onClick={onLogout}>🚪 Sign out</button>
                 </>
               )}
             </div>
@@ -202,7 +212,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         )}
       </header>
 
-      <main className="main-content" id="main-content">
+      <main className="main-content" id="main-content" tabIndex={-1}>
         {children}
       </main>
 
@@ -211,9 +221,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <div className="container">
           <div className="footer-grid">
 
-            {/* Brand + newsletter */}
+            {/* Brand */}
             <div>
-              <Link to="/" className="footer-brand">
+              <Link to="/" className="footer-brand" aria-label="AfriCraft Rwanda home">
                 <svg width="28" height="28" viewBox="0 0 38 38" fill="none" aria-hidden="true">
                   <circle cx="19" cy="19" r="19" fill="#8b5e3c"/>
                   <ellipse cx="19" cy="22" rx="11" ry="6" fill="#c89f65" stroke="#fff8ee" strokeWidth="0.8"/>
@@ -225,27 +235,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               <p className="footer-tagline">
                 Authentic handmade goods from Rwanda's finest artisans. Every purchase supports a local maker.
               </p>
-              <div className="footer-newsletter">
-                {newsSent ? (
-                  <span style={{ color: '#86efac', fontSize: 13, fontWeight: 600 }}>✓ You're subscribed!</span>
-                ) : (
-                  <>
-                    <input
-                      type="email"
-                      placeholder="Your email address"
-                      value={newsEmail}
-                      onChange={(e) => setNewsEmail(e.target.value)}
-                      aria-label="Newsletter email"
-                    />
-                    <button
-                      onClick={() => { if (newsEmail) setNewsSent(true); }}
-                      aria-label="Subscribe to newsletter"
-                    >
-                      Subscribe
-                    </button>
-                  </>
-                )}
-              </div>
               <div className="footer-socials">
                 <a href="#" className="social-btn" aria-label="Facebook">📘</a>
                 <a href="#" className="social-btn" aria-label="Instagram">📸</a>
@@ -253,18 +242,19 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               </div>
             </div>
 
-            {/* Shop links */}
+            {/* Shop */}
             <div>
               <div className="footer-col-title">Shop</div>
               <nav className="footer-links" aria-label="Shop links">
                 <Link to="/products">All Products</Link>
+                <Link to="/products?featured=true">Featured</Link>
                 <Link to="/categories">Categories</Link>
                 <Link to="/wishlist">Wishlist</Link>
                 <Link to="/cart">Cart</Link>
               </nav>
             </div>
 
-            {/* Account links */}
+            {/* Account */}
             <div>
               <div className="footer-col-title">Account</div>
               <nav className="footer-links" aria-label="Account links">
@@ -278,12 +268,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             {/* Contact */}
             <div>
               <div className="footer-col-title">Contact</div>
-              <div className="footer-links">
+              <address className="footer-links" style={{ fontStyle: 'normal' }}>
                 <a href="mailto:hello@africraft.rw">hello@africraft.rw</a>
                 <a href="tel:+250794049090">+250 794 049 090</a>
                 <Link to="/contact">Contact Us</Link>
                 <span>Kigali, Rwanda</span>
-              </div>
+              </address>
             </div>
           </div>
 

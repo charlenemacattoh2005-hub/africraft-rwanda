@@ -5,7 +5,7 @@ import { fetchSiteStats } from '../services/admin';
 
 export default function AdminAnalyticsPage() {
   return (
-    <RequireAuth>
+    <RequireAuth roles={['admin']}>
       <AdminLayout><Inner /></AdminLayout>
     </RequireAuth>
   );
@@ -24,11 +24,8 @@ function BarChart({ data, color = '#f97316' }: { data: { label: string; value: n
       {data.map(d => (
         <div key={d.label} className="an-bar-col">
           <div className="an-bar-wrap">
-            <div
-              className="an-bar"
-              style={{ height: `${Math.max((d.value / max) * 100, 3)}%`, background: color }}
-              title={`RWF ${d.value.toLocaleString()}`}
-            />
+            <div className="an-bar" style={{ height: `${Math.max((d.value / max) * 100, 3)}%`, background: color }}
+              title={`RWF ${d.value.toLocaleString()}`} />
           </div>
           <div className="an-bar-label">{d.label}</div>
         </div>
@@ -46,15 +43,8 @@ function DonutChart({ data }: { data: { label: string; value: number; color: str
       <svg viewBox="0 0 100 100" className="an-donut-svg">
         {data.map((d, i) => {
           const dash = (d.value / total) * C;
-          const gap  = C - dash;
-          const el = (
-            <circle key={i} cx="50" cy="50" r={R}
-              fill="none" stroke={d.color} strokeWidth="18"
-              strokeDasharray={`${dash} ${gap}`}
-              strokeDashoffset={-offset}
-              transform="rotate(-90 50 50)"
-            />
-          );
+          const el = <circle key={i} cx="50" cy="50" r={R} fill="none" stroke={d.color} strokeWidth="18"
+            strokeDasharray={`${dash} ${C - dash}`} strokeDashoffset={-offset} transform="rotate(-90 50 50)" />;
           offset += dash;
           return el;
         })}
@@ -81,12 +71,10 @@ function Inner() {
   const [error,   setError]   = useState<string | null>(null);
 
   useEffect(() => {
-    let ok = true;
     fetchSiteStats()
-      .then(d => { if (ok) setStats(d); })
-      .catch(e => { if (ok) setError(e?.message || 'Failed to load analytics'); })
-      .finally(() => { if (ok) setLoading(false); });
-    return () => { ok = false; };
+      .then(d => setStats(d))
+      .catch(e => setError(e?.message || 'Failed to load analytics'))
+      .finally(() => setLoading(false));
   }, []);
 
   const revenueGrowth = stats ? pct(stats.thisMonth?.revenue, stats.lastMonth?.revenue) : '—';
@@ -94,24 +82,18 @@ function Inner() {
   const revenueUp     = stats ? stats.thisMonth?.revenue >= stats.lastMonth?.revenue : true;
   const ordersUp      = stats ? stats.thisMonth?.orders  >= stats.lastMonth?.orders  : true;
 
-  const dailyData = (stats?.ordersByDay || []).map((d: any) => ({
-    label: d._id?.slice(5) || '',
-    value: d.revenue || 0,
-  }));
-
-  const catData = (stats?.revenueByCategory || []).map((d: any, i: number) => ({
-    label: d._id || 'Other',
-    value: d.revenue || 0,
-    color: CAT_COLORS[i % CAT_COLORS.length],
+  const dailyData = (stats?.ordersByDay || []).map((d: any) => ({ label: d._id?.slice(5) || '', value: d.revenue || 0 }));
+  const catData   = (stats?.revenueByCategory || []).map((d: any, i: number) => ({
+    label: d._id || 'Other', value: d.revenue || 0, color: CAT_COLORS[i % CAT_COLORS.length],
   }));
 
   const kpis = [
-    { label: 'Total Revenue',    value: `RWF ${Number(stats?.totalRevenue || 0).toLocaleString()}`,  icon: '💰', cls: 'kpi-revenue' },
-    { label: 'This Month',       value: `RWF ${Number(stats?.thisMonth?.revenue || 0).toLocaleString()}`, icon: '📅', cls: 'kpi-orders', change: revenueGrowth, up: revenueUp },
-    { label: 'Total Orders',     value: String(stats?.totalOrders || 0),  icon: '📦', cls: 'kpi-customers' },
-    { label: 'Orders This Month',value: String(stats?.thisMonth?.orders || 0), icon: '🛒', cls: 'kpi-products', change: ordersGrowth, up: ordersUp },
-    { label: 'Total Customers',  value: String(stats?.totalUsers || 0),   icon: '👥', cls: 'kpi-pending' },
-    { label: 'Active Products',  value: String(stats?.totalProducts || 0),icon: '🛍️', cls: 'kpi-lowstock' },
+    { label: 'Total Revenue',     value: `RWF ${Number(stats?.totalRevenue || 0).toLocaleString()}`,        icon: '💰', cls: 'kpi-revenue' },
+    { label: 'This Month',        value: `RWF ${Number(stats?.thisMonth?.revenue || 0).toLocaleString()}`,  icon: '📅', cls: 'kpi-orders',    change: revenueGrowth, up: revenueUp },
+    { label: 'Total Orders',      value: String(stats?.totalOrders   || 0), icon: '📦', cls: 'kpi-customers' },
+    { label: 'Orders This Month', value: String(stats?.thisMonth?.orders || 0), icon: '🛒', cls: 'kpi-products', change: ordersGrowth, up: ordersUp },
+    { label: 'Customers',         value: String(stats?.totalUsers    || 0), icon: '👥', cls: 'kpi-pending' },
+    { label: 'Active Products',   value: String(stats?.totalProducts || 0), icon: '🛍️', cls: 'kpi-lowstock' },
   ];
 
   return (
@@ -128,22 +110,17 @@ function Inner() {
 
       {loading ? (
         <div className="dash-kpi-grid">
-          {[1,2,3,4,5,6].map(i => <div key={i} className="skeleton" style={{ height: 110, borderRadius: 16 }} />)}
+          {[1,2,3,4,5,6].map(i => <div key={i} className="skeleton" style={{ height: 120, borderRadius: 18 }} />)}
         </div>
       ) : (
         <>
-          {/* KPI row */}
           <div className="dash-kpi-grid" style={{ marginBottom: 24 }}>
             {kpis.map(k => (
               <div key={k.label} className={`dash-kpi ${k.cls}`}>
                 <div className="dash-kpi-stripe" />
                 <div className="dash-kpi-top">
                   <div className="dash-kpi-icon">{k.icon}</div>
-                  {k.change && (
-                    <span className={`dash-kpi-change ${k.up ? 'up' : 'down'}`}>
-                      {k.up ? '▲' : '▼'} {k.change}
-                    </span>
-                  )}
+                  {k.change && <span className={`dash-kpi-change ${k.up ? 'up' : 'down'}`}>{k.up ? '▲' : '▼'} {k.change}</span>}
                 </div>
                 <div className="dash-kpi-value">{k.value}</div>
                 <div className="dash-kpi-label">{k.label}</div>
@@ -151,9 +128,7 @@ function Inner() {
             ))}
           </div>
 
-          {/* Charts row */}
           <div className="an-charts-grid">
-            {/* Daily revenue */}
             <div className="dash-chart-card">
               <div className="dash-chart-header">
                 <div>
@@ -161,15 +136,10 @@ function Inner() {
                   <div className="dash-chart-subtitle">Revenue per day in RWF</div>
                 </div>
               </div>
-              <div className="dash-chart-body">
-                {dailyData.length > 0
-                  ? <BarChart data={dailyData} color="#f97316" />
-                  : <div className="an-empty">No order data yet.</div>
-                }
+              <div className="dash-chart-body" style={{ minHeight: 220 }}>
+                {dailyData.length > 0 ? <BarChart data={dailyData} color="#f97316" /> : <div className="an-empty">No order data yet.</div>}
               </div>
             </div>
-
-            {/* Revenue by category */}
             <div className="dash-chart-card">
               <div className="dash-chart-header">
                 <div>
@@ -178,24 +148,16 @@ function Inner() {
                 </div>
               </div>
               <div className="dash-chart-body">
-                {catData.length > 0
-                  ? <DonutChart data={catData} />
-                  : <div className="an-empty">No sales data yet.</div>
-                }
+                {catData.length > 0 ? <DonutChart data={catData} /> : <div className="an-empty">No sales data yet.</div>}
               </div>
             </div>
           </div>
 
-          {/* Category table */}
           {catData.length > 0 && (
             <div className="dash-card" style={{ marginTop: 18 }}>
-              <div className="dash-card-header">
-                <div className="dash-card-title">📊 Category Performance</div>
-              </div>
+              <div className="dash-card-header"><div className="dash-card-title">📊 Category Performance</div></div>
               <table className="dash-table">
-                <thead>
-                  <tr><th>#</th><th>Category</th><th>Revenue</th><th>Units Sold</th><th>Share</th></tr>
-                </thead>
+                <thead><tr><th>#</th><th>Category</th><th>Revenue</th><th>Units Sold</th><th>Share</th></tr></thead>
                 <tbody>
                   {(stats.revenueByCategory || []).map((c: any, i: number) => {
                     const totalRev = stats.revenueByCategory.reduce((s: number, x: any) => s + x.revenue, 0) || 1;

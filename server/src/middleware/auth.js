@@ -24,14 +24,20 @@ export function requireAuth(req, res, next) {
 }
 
 export function requireAdmin(req, res, next) {
-  if (!req.user) {
-    return res.status(401).json({ message: 'Unauthorized' });
-  }
+  if (!req.user) return res.status(401).json({ message: 'Unauthorized' });
+  if (req.user.role !== 'admin') return res.status(403).json({ message: 'Admin access required' });
+  return next();
+}
 
-  if (req.user.role !== 'admin') {
-    return res.status(403).json({ message: 'Admin access required' });
-  }
+export function requireVendor(req, res, next) {
+  if (!req.user) return res.status(401).json({ message: 'Unauthorized' });
+  if (!['admin', 'vendor'].includes(req.user.role)) return res.status(403).json({ message: 'Vendor access required' });
+  return next();
+}
 
+export function requireAdminOrVendor(req, res, next) {
+  if (!req.user) return res.status(401).json({ message: 'Unauthorized' });
+  if (!['admin', 'vendor'].includes(req.user.role)) return res.status(403).json({ message: 'Access denied' });
   return next();
 }
 

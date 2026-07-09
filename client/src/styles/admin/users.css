@@ -1,0 +1,170 @@
+/* ═══════════════════════════════════════════════════════════════
+   USERS — user management, role badges, vendor dashboard, profile
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Toast ──────────────────────────────────────────────────── */
+.admin-toast {
+  position: fixed; top: 20px; right: 20px; z-index: 9999;
+  padding: 12px 20px; border-radius: 12px;
+  font-size: 13px; font-weight: 600;
+  box-shadow: 0 8px 32px rgba(0,0,0,.15);
+  animation: toastIn 0.3s ease; max-width: 360px;
+}
+.admin-toast.success { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
+.admin-toast.error   { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+@keyframes toastIn {
+  from { opacity: 0; transform: translateX(40px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* ── Role summary cards ─────────────────────────────────────── */
+.user-role-summary {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 14px; margin-bottom: 22px;
+}
+.user-role-card {
+  background: #fff; border-radius: 14px;
+  border: 1px solid rgba(194,65,12,.09);
+  padding: 18px 16px; text-align: center; cursor: pointer;
+  transition: transform 0.18s, box-shadow 0.18s;
+  box-shadow: 0 1px 4px rgba(0,0,0,.05);
+}
+.user-role-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,.1); }
+.user-role-card-count { font-size: 28px; font-weight: 900; line-height: 1; }
+.user-role-card-label { font-size: 11px; color: #78716c; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; margin-top: 4px; }
+
+/* ── Role badge ─────────────────────────────────────────────── */
+.user-role-badge {
+  display: inline-flex; align-items: center;
+  padding: 3px 10px; border-radius: 999px;
+  font-size: 11px; font-weight: 700; text-transform: capitalize; letter-spacing: .03em;
+}
+
+/* ── Role option radio ──────────────────────────────────────── */
+.user-role-option {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 16px; border-radius: 12px;
+  border: 2px solid rgba(194,65,12,.1); cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+.user-role-option input[type="radio"] { accent-color: #c2410c; }
+.user-role-desc { font-size: 12px; color: #78716c; flex: 1; }
+
+/* ── Profile photo upload ───────────────────────────────────── */
+.user-photo-preview {
+  width: 90px; height: 90px; border-radius: 50%;
+  background: linear-gradient(135deg,#fff7ed,#ffedd5);
+  border: 2px dashed rgba(194,65,12,.3);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; position: relative; overflow: hidden;
+  transition: border-color 0.15s;
+}
+.user-photo-preview:hover { border-color: #c2410c; }
+.user-photo-overlay {
+  position: absolute; inset: 0; background: rgba(0,0,0,.5);
+  color: #fff; font-size: 11px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; transition: opacity 0.15s; border-radius: 50%; text-align: center;
+}
+.user-photo-preview:hover .user-photo-overlay { opacity: 1; }
+
+/* ── User preview card ──────────────────────────────────────── */
+.user-preview-card {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 8px; padding: 20px;
+  background: linear-gradient(135deg,#fff7ed,#fff);
+  border-radius: 16px; border: 1px solid rgba(194,65,12,.1); text-align: center;
+}
+.user-preview-avatar {
+  width: 72px; height: 72px; border-radius: 50%;
+  background: linear-gradient(135deg,#c2410c,#f97316);
+  color: #fff; font-size: 26px; font-weight: 900;
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden; box-shadow: 0 4px 16px rgba(194,65,12,.3);
+}
+.user-preview-name  { font-size: 15px; font-weight: 800; color: #1c1917; }
+.user-preview-email { font-size: 11px; color: #78716c; }
+.user-preview-bio   { font-size: 11px; color: #78716c; font-style: italic; margin-top: 4px; }
+
+/* ── Admin action button variants ───────────────────────────── */
+.admin-btn-view {
+  padding: 5px 10px; border-radius: 8px;
+  font-size: 11px; font-weight: 700; cursor: pointer;
+  border: 1px solid rgba(8,145,178,.25);
+  background: rgba(8,145,178,.08); color: #0891b2;
+  transition: background 0.14s; white-space: nowrap;
+}
+.admin-btn-view:hover { background: rgba(8,145,178,.18); }
+
+/* ── Product image input row ────────────────────────────────── */
+.product-img-input-row { display: flex; gap: 8px; align-items: center; }
+.product-img-input-row .input { flex: 1; }
+
+/* ═══════════════════════════════════════════════════════════════
+   VENDOR DASHBOARD
+   ═══════════════════════════════════════════════════════════════ */
+.vendor-kpi-row {
+  display: grid; grid-template-columns: repeat(5,1fr);
+  gap: 14px; margin-bottom: 22px;
+}
+.vendor-kpi {
+  background: #fff; border-radius: 14px;
+  border: 1px solid rgba(194,65,12,.09);
+  padding: 18px 16px; text-align: center;
+  box-shadow: 0 1px 4px rgba(0,0,0,.05);
+  transition: transform 0.18s, box-shadow 0.18s;
+}
+.vendor-kpi:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(194,65,12,.12); }
+.vendor-kpi-val   { font-size: 22px; font-weight: 900; color: #c2410c; line-height: 1; }
+.vendor-kpi-label { font-size: 11px; color: #78716c; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; margin-top: 5px; }
+
+.vendor-tabs {
+  display: flex; gap: 4px; margin-bottom: 18px;
+  background: rgba(194,65,12,.05); border: 1px solid rgba(194,65,12,.1);
+  border-radius: 12px; padding: 4px; width: fit-content;
+}
+.vendor-tab {
+  padding: 8px 20px; border-radius: 9px;
+  font-size: 13px; font-weight: 700; cursor: pointer;
+  border: none; background: none; color: #78716c;
+  transition: background 0.15s, color 0.15s, box-shadow 0.15s;
+}
+.vendor-tab.active { background: #fff; color: #c2410c; box-shadow: 0 2px 8px rgba(194,65,12,.15); }
+
+/* ═══════════════════════════════════════════════════════════════
+   PROFILE PAGE
+   ═══════════════════════════════════════════════════════════════ */
+.profile-section-card {
+  background: #fff; border-radius: 18px;
+  border: 1px solid rgba(194,65,12,.09);
+  box-shadow: 0 1px 4px rgba(0,0,0,.05);
+  padding: 28px; display: flex; flex-direction: column; gap: 18px;
+}
+.profile-section-title {
+  font-size: 15px; font-weight: 800; color: #1c1917;
+  padding-bottom: 14px; border-bottom: 1px solid rgba(194,65,12,.08);
+}
+.profile-avatar-row { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+.profile-avatar-wrap { position: relative; cursor: pointer; border-radius: 50%; overflow: hidden; flex-shrink: 0; }
+.profile-avatar-img {
+  width: 80px; height: 80px; border-radius: 50%;
+  object-fit: cover; border: 3px solid rgba(194,65,12,.2);
+}
+.profile-avatar-overlay {
+  position: absolute; inset: 0; background: rgba(0,0,0,.55);
+  color: #fff; font-size: 11px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column; gap: 2px;
+  opacity: 0; transition: opacity 0.15s; border-radius: 50%; text-align: center;
+}
+.profile-avatar-wrap:hover .profile-avatar-overlay { opacity: 1; }
+
+/* ── Responsive ─────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .user-role-summary { grid-template-columns: repeat(2,1fr); }
+  .vendor-kpi-row    { grid-template-columns: repeat(2,1fr); }
+}
+@media (max-width: 480px) {
+  .vendor-tabs { width: 100%; }
+  .vendor-kpi-row { grid-template-columns: 1fr 1fr; }
+}

@@ -1,79 +1,77 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { fetchFeaturedProducts, fetchBestSellers, fetchNewArrivals } from '../services/products';
+import { fetchCategories } from '../services/categories';
 import { ProductCard, LoadingSkeleton } from '../components/ui';
 
-const FEATURES = [
-  { icon: '🎨', title: 'Verified artisans',   text: 'Every maker is spotlighted with story and origin.' },
-  { icon: '🚚', title: 'Fast local delivery', text: 'Reliable delivery across Rwanda with tracking updates.' },
-  { icon: '🔒', title: 'Secure checkout',     text: 'Choose mobile money or cash on delivery with ease.' },
-];
-const STATS = [
-  { value: '500+',   label: 'Products' },
-  { value: '150+',   label: 'Local artisans' },
-  { value: '5,000+', label: 'Happy customers' },
-  { value: '30',     label: 'Districts served' },
-];
-const COLLECTIONS = [
-  { icon: '🏠', title: 'Home décor',  text: 'Warm, handcrafted pieces that bring soul to every room.',    to: '/products?category=Home+Decor' },
-  { icon: '💎', title: 'Wearables',   text: 'Expressive accessories made with color, texture, and care.', to: '/products?category=Jewelry' },
-  { icon: '🎁', title: 'Gifting',     text: 'Thoughtful gifts that feel personal and timeless.',           to: '/products?category=Gifts' },
-];
-const ARTISANS = [
-  { name: 'Imani Nkurunziza', district: 'Kicukiro',  specialty: 'Basket weaving', bio: 'Crafting bold, contemporary baskets with heritage techniques.', img: 'https://images.unsplash.com/photo-1590736969955-71cc94901144?auto=format&fit=crop&w=400&q=80' },
-  { name: 'Grace Mukamana',   district: 'Muhanga',   specialty: 'Pottery',        bio: 'Creating earthy ceramics with texture and timeless form.',       img: 'https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?auto=format&fit=crop&w=400&q=80' },
-  { name: 'Jean Bosco',       district: 'Nyagatare', specialty: 'Wood carving',   bio: 'Bringing sculptural energy to daily objects and decor.',          img: 'https://images.unsplash.com/photo-1503919545889-aef636e10ad4?auto=format&fit=crop&w=400&q=80' },
-];
-const TESTIMONIALS = [
-  { name: 'Aline K.', quote: 'The basket I bought arrived beautifully packaged and feels truly special.' },
-  { name: 'Eric M.',  quote: 'I found the perfect gift for my family and the checkout was effortless.' },
-  { name: 'Mina R.',  quote: 'Wonderful to support local artisans while shopping from home.' },
-];
-const GALLERY = [
-  { url: 'https://afrotidecrafts.com/wp-content/uploads/2024/07/Rwandese-Grass-Agaseke-Peace-basket.jpg',                                                                  label: 'Agaseke Peace Basket' },
-  { url: 'https://rwandamart.rw/wp-content/uploads/2026/02/UKC-1-3.png',                                                                                                   label: 'Handwoven Sisal Basket' },
-  { url: 'https://i.etsystatic.com/57769269/r/il/011fa6/7224459470/il_570xN.7224459470_4eq1.jpg',                                                                          label: 'Woven Wall Basket' },
-  { url: 'https://trovewarehouse.com/cdn/shop/products/33024.jpg?v=1649348106&width=1080',                                                                                  label: 'Banana Fiber Basket' },
-  { url: 'https://cdn.boeddha-beelden.com/wp-content/uploads/2024/02/Majestueuze-Gorilla-beeld-%E2%80%93-Winterhard-85cm-5.jpg',                                           label: 'Wooden Gorilla Sculpture' },
-  { url: 'https://annakaytes.com/cdn/shop/files/IMG-7618.jpg',                                                                                                              label: 'Beaded Bracelet Set' },
-  { url: 'https://i.etsystatic.com/35749210/r/il/755caa/7676774768/il_fullxfull.7676774768_gdce.jpg',                                                                      label: 'African Throw Pillow' },
-  { url: 'https://www.jackalberry.co.za/jb/wp-content/uploads/2017/07/ChatGPT-Image-Oct-14-2025-at-11_38_49-AM.jpg',                                                      label: 'Leather Handbag' },
-];
-const FAQS = [
-  { q: 'Do you ship outside Rwanda?',       a: 'Yes, we support select international deliveries for curated pieces.' },
-  { q: 'Can I order custom artisan pieces?', a: 'Absolutely — contact us for bespoke and wholesale requests.' },
-  { q: 'Is payment secure?',                a: 'Yes, our checkout supports secure mobile money and delivery options.' },
-];
-
-function ProductGrid({ items, loading }: { items: any[]; loading: boolean }) {
-  if (loading) return <LoadingSkeleton count={6} variant="card" />;
-  if (!items.length) return <p className="small" style={{ marginTop: 12 }}>No products available right now.</p>;
+// ─── Product grid section ────────────────────────────────────
+function ProductSection({ title, subtitle, items, loading, to }: {
+  title: string; subtitle: string;
+  items: any[]; loading: boolean; to: string;
+}) {
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 14, marginTop: 14 }}>
-      {items.map((item) => <ProductCard key={item._id} product={item} variant="home" />)}
+    <section className="home-section" aria-label={title}>
+      <div className="home-section-header">
+        <div>
+          <h2 className="home-section-title">{title}</h2>
+          <p className="home-section-sub">{subtitle}</p>
+        </div>
+        <Link to={to} className="home-section-link">View all →</Link>
+      </div>
+      {loading ? (
+        <LoadingSkeleton count={4} variant="card" />
+      ) : items.length === 0 ? (
+        <div className="home-empty">No products available right now.</div>
+      ) : (
+        <div className="home-product-grid">
+          {items.slice(0, 8).map(p => <ProductCard key={p._id} product={p} variant="home" />)}
+        </div>
+      )}
+    </section>
+  );
+}
+
+// ─── Stat ticker ─────────────────────────────────────────────
+function StatBar({ stats }: { stats: { value: string; label: string }[] }) {
+  return (
+    <div className="home-stat-bar" aria-label="Platform statistics">
+      {stats.map(s => (
+        <div key={s.label} className="home-stat-item">
+          <span className="home-stat-val">{s.value}</span>
+          <span className="home-stat-label">{s.label}</span>
+        </div>
+      ))}
     </div>
   );
 }
 
 export default function HomePage() {
+  const navigate = useNavigate();
   const [featured,    setFeatured]    = useState<any[]>([]);
   const [bestSellers, setBestSellers] = useState<any[]>([]);
   const [newArrivals, setNewArrivals] = useState<any[]>([]);
+  const [categories,  setCategories]  = useState<any[]>([]);
   const [loading,     setLoading]     = useState(true);
+  const [heroSearch,  setHeroSearch]  = useState('');
   const [showTop,     setShowTop]     = useState(false);
 
   useEffect(() => {
     let mounted = true;
-    (async () => {
-      try {
-        const [f, b, n] = await Promise.all([fetchFeaturedProducts(), fetchBestSellers(), fetchNewArrivals()]);
+    Promise.all([
+      fetchFeaturedProducts(),
+      fetchBestSellers(),
+      fetchNewArrivals(),
+      fetchCategories(),
+    ])
+      .then(([f, b, n, c]) => {
         if (!mounted) return;
         setFeatured(f.items || []);
-        setBestSellers((b.items || []).slice(0, 6));
-        setNewArrivals((n.items || []).slice(0, 6));
-      } catch {}
-      finally { if (mounted) setLoading(false); }
-    })();
+        setBestSellers((b.items || []).slice(0, 8));
+        setNewArrivals((n.items || []).slice(0, 8));
+        setCategories((c.categories || []).filter((cat: any) => cat.isActive).slice(0, 8));
+      })
+      .catch(() => {})
+      .finally(() => { if (mounted) setLoading(false); });
     return () => { mounted = false; };
   }, []);
 
@@ -83,162 +81,192 @@ export default function HomePage() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  function onHeroSearch(e: React.FormEvent) {
+    e.preventDefault();
+    if (heroSearch.trim()) navigate(`/products?q=${encodeURIComponent(heroSearch.trim())}`);
+    else navigate('/products');
+  }
+
+  const CATEGORY_ICONS: Record<string, string> = {
+    Baskets: '🧺', Pottery: '🏺', Jewelry: '💎', Textiles: '🧵',
+    'Wood Carvings': '🪵', Paintings: '🎨', 'Home Décor': '🏠',
+    Bags: '👜', Gifts: '🎁', Kitchen: '🍳', Games: '🎲',
+    Storage: '📦', Jewelry2: '📿', 'Musical Instruments': '🎵',
+  };
+
+  const platformStats = [
+    { value: `${Math.max(featured.length + bestSellers.length + newArrivals.length, 50)}+`, label: 'Products' },
+    { value: `${Math.max(categories.length, 8)}+`,  label: 'Categories' },
+    { value: '5,000+', label: 'Happy Customers' },
+    { value: '30',     label: 'Districts Served' },
+  ];
+
   return (
-    <div className="container page">
+    <div className="home-page">
 
-      {/* ── Hero ── */}
-      <section className="card classic-hero" style={{ padding: '40px 32px', overflow: 'hidden' }} aria-label="Hero">
-        <div className="grid" style={{ alignItems: 'center', gap: 24 }}>
-          <div className="col-8" style={{ padding: '0 6px' }}>
-            <span className="badge classic-pill">🌿 Handcrafted in Rwanda</span>
-            <h1 className="classic-title">A timeless collection of artisan treasures.</h1>
-            <p className="classic-lead">
-              Support local makers, discover meaningful gifts, and enjoy a beautifully simple shopping journey from browsing to delivery.
-            </p>
-            <div className="classic-cta-row">
-              <Link to="/products"   className="btn primary">Browse products</Link>
-              <Link to="/categories" className="btn">Explore categories</Link>
-              <Link to="/register"   className="btn">Join free</Link>
+      {/* ── Hero ─────────────────────────────────────────── */}
+      <section className="home-hero" aria-label="Hero">
+        <div className="container">
+          <div className="home-hero-inner">
+            <div className="home-hero-content">
+              <span className="home-hero-pill">🌿 Handcrafted in Rwanda</span>
+              <h1 className="home-hero-title">
+                Discover authentic<br />artisan treasures
+              </h1>
+              <p className="home-hero-lead">
+                Support local makers, find meaningful gifts, and enjoy a beautifully
+                simple shopping journey — from browsing to your doorstep.
+              </p>
+
+              {/* Search bar */}
+              <form onSubmit={onHeroSearch} className="home-hero-search" role="search">
+                <input
+                  type="search"
+                  placeholder="Search baskets, jewelry, wood carvings…"
+                  value={heroSearch}
+                  onChange={e => setHeroSearch(e.target.value)}
+                  aria-label="Search products"
+                />
+                <button type="submit" className="btn primary">Search</button>
+              </form>
+
+              <div className="home-hero-actions">
+                <Link to="/products"   className="btn primary">Shop now</Link>
+                <Link to="/categories" className="btn">Browse categories</Link>
+              </div>
+
+              <div className="home-hero-badges">
+                <span>🌿 Ethically made</span>
+                <span>✨ Curated gifts</span>
+                <span>🚚 Fast local delivery</span>
+                <span>🔒 Secure checkout</span>
+              </div>
             </div>
-            <div className="classic-highlights">
-              <span>🌿 Ethically made</span>
-              <span>✨ Curated gifts</span>
-              <span>🚚 Local delivery</span>
-              <span>🔒 Secure checkout</span>
+
+            <div className="home-hero-visual" aria-hidden="true">
+              <div className="home-hero-card">
+                <div className="home-hero-card-label">Featured this week</div>
+                <div className="home-hero-card-title">Basket weave collection</div>
+                <p style={{ fontSize: 12, color: '#78716c', marginTop: 8 }}>
+                  Freshly sourced from Kigali artisans — styled for modern homes.
+                </p>
+                <Link to="/products?category=Baskets" className="btn primary" style={{ marginTop: 14, width: '100%', textAlign: 'center' }}>
+                  Shop baskets
+                </Link>
+              </div>
             </div>
           </div>
-          <div className="col-4" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <div className="classic-spotlight anim-scale-in">
-              <div className="classic-spotlight-label">Featured this week</div>
-              <div className="classic-spotlight-title">Basket weave collection</div>
-              <p className="small" style={{ marginTop: 8 }}>Freshly sourced from Kigali artisans and styled for modern homes.</p>
-              <Link to="/products" className="btn primary" style={{ marginTop: 14, width: '100%' }}>Shop now</Link>
+        </div>
+      </section>
+
+      {/* ── Stats ────────────────────────────────────────── */}
+      <div className="container">
+        <StatBar stats={platformStats} />
+
+        {/* ── Category grid (from DB) ───────────────────── */}
+        {categories.length > 0 && (
+          <section className="home-section" aria-label="Shop by category">
+            <div className="home-section-header">
+              <div>
+                <h2 className="home-section-title">Shop by category</h2>
+                <p className="home-section-sub">Find exactly what you're looking for</p>
+              </div>
+              <Link to="/categories" className="home-section-link">All categories →</Link>
+            </div>
+            <div className="home-cat-grid">
+              {categories.map(cat => (
+                <Link key={cat._id} to={`/products?category=${encodeURIComponent(cat.name)}`} className="home-cat-card">
+                  {cat.imageUrl
+                    ? <img src={cat.imageUrl} alt={cat.name} className="home-cat-img"
+                        onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+                    : <div className="home-cat-icon">{CATEGORY_ICONS[cat.name] || '🎨'}</div>}
+                  <div className="home-cat-name">{cat.name}</div>
+                  {cat.description && <div className="home-cat-desc">{cat.description.slice(0, 50)}</div>}
+                </Link>
+              ))}
+              {/* Show text fallbacks if DB has no categories yet */}
+              {categories.length === 0 && !loading && [
+                { name: 'Baskets',      icon: '🧺', to: '/products?category=Baskets' },
+                { name: 'Jewelry',      icon: '💎', to: '/products?category=Jewelry' },
+                { name: 'Pottery',      icon: '🏺', to: '/products?category=Pottery' },
+                { name: 'Paintings',    icon: '🎨', to: '/products?category=Paintings' },
+                { name: 'Wood Carvings',icon: '🪵', to: '/products?category=Wood+Carvings' },
+                { name: 'Home Décor',   icon: '🏠', to: '/products?category=Home+Décor' },
+              ].map(c => (
+                <Link key={c.name} to={c.to} className="home-cat-card">
+                  <div className="home-cat-icon">{c.icon}</div>
+                  <div className="home-cat-name">{c.name}</div>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* ── New arrivals ──────────────────────────────── */}
+        <ProductSection
+          title="New arrivals"
+          subtitle="Fresh additions just landed from Rwandan artisans"
+          items={newArrivals}
+          loading={loading}
+          to="/products?badge=New+Arrival"
+        />
+
+        {/* ── Featured products ─────────────────────────── */}
+        {(loading || featured.length > 0) && (
+          <ProductSection
+            title="Featured products"
+            subtitle="A handpicked selection of our finest artisan pieces"
+            items={featured}
+            loading={loading}
+            to="/products?featured=true"
+          />
+        )}
+
+        {/* ── Best sellers ──────────────────────────────── */}
+        <ProductSection
+          title="Best sellers"
+          subtitle="Most-loved products from artisans across Rwanda"
+          items={bestSellers}
+          loading={loading}
+          to="/products?badge=Best+Seller"
+        />
+
+        {/* ── Why shop with us ──────────────────────────── */}
+        <section className="home-section" aria-label="Why shop with us">
+          <div className="home-section-header">
+            <div>
+              <h2 className="home-section-title">Why AfriCraft Rwanda?</h2>
+              <p className="home-section-sub">Every purchase makes a difference</p>
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* ── Feature cards ── */}
-      <section className="classic-feature-grid" aria-label="Features" style={{ marginTop: 20 }}>
-        {FEATURES.map((f, i) => (
-          <div key={f.title} className={`card classic-feature-card anim-slide-up delay-${i + 1}`}>
-            <div style={{ fontSize: 28, marginBottom: 10 }}>{f.icon}</div>
-            <div style={{ fontWeight: 800, marginBottom: 6 }}>{f.title}</div>
-            <div className="small">{f.text}</div>
+          <div className="home-features-grid">
+            {[
+              { icon: '🎨', title: 'Verified artisans',   text: 'Every maker is verified with story and origin — no mass-produced goods.' },
+              { icon: '🚚', title: 'Fast local delivery',  text: 'Reliable delivery across Rwanda with real-time tracking updates.' },
+              { icon: '🔒', title: 'Secure checkout',      text: 'Mobile money, cash on delivery, and safe payment processing.' },
+              { icon: '🌿', title: 'Ethical sourcing',     text: 'Fair prices paid directly to artisans — your purchase matters.' },
+            ].map(f => (
+              <div key={f.title} className="home-feature-card">
+                <div className="home-feature-icon">{f.icon}</div>
+                <div className="home-feature-title">{f.title}</div>
+                <div className="home-feature-text">{f.text}</div>
+              </div>
+            ))}
           </div>
-        ))}
-      </section>
+        </section>
 
-      {/* ── Stats ── */}
-      <section className="stat-grid" aria-label="Statistics">
-        {STATS.map((s) => (
-          <div key={s.label} className="card stat-card">
-            <div className="stat-number">{s.value}</div>
-            <div className="small">{s.label}</div>
+        {/* ── CTA banner ────────────────────────────────── */}
+        <section className="home-cta-banner" aria-label="Call to action">
+          <div className="home-cta-content">
+            <h2 className="home-cta-title">Are you a local artisan?</h2>
+            <p className="home-cta-sub">Join hundreds of makers already selling on AfriCraft Rwanda — reach customers across the country.</p>
+            <div className="home-cta-actions">
+              <Link to="/register" className="btn primary">Start selling today</Link>
+              <Link to="/contact"  className="btn" style={{ background: 'rgba(255,255,255,.15)', color: '#fff', border: '1px solid rgba(255,255,255,.3)' }}>Contact us</Link>
+            </div>
           </div>
-        ))}
-      </section>
-
-      {/* ── Collections ── */}
-      <section className="classic-collections" aria-label="Collections">
-        {COLLECTIONS.map((c) => (
-          <Link key={c.title} to={c.to} style={{ textDecoration: 'none' }}>
-            <div className="card classic-collection-card" style={{ cursor: 'pointer' }}>
-              <div style={{ fontSize: 32, marginBottom: 10 }}>{c.icon}</div>
-              <div className="classic-collection-title">{c.title}</div>
-              <div className="small" style={{ marginTop: 6 }}>{c.text}</div>
-            </div>
-          </Link>
-        ))}
-      </section>
-
-      {/* ── New arrivals ── */}
-      <section className="card classic-section-card" style={{ padding: 24, marginTop: 24 }} aria-label="New arrivals">
-        <div className="h1 classic-section-title">New arrivals</div>
-        <p className="p">Fresh additions from Rwandan artisans — just landed.</p>
-        <ProductGrid items={newArrivals} loading={loading} />
-      </section>
-
-      {/* ── Featured products ── */}
-      <section className="card classic-section-card" style={{ padding: 24, marginTop: 16 }} aria-label="Featured products">
-        <div className="h1 classic-section-title">Featured products</div>
-        <p className="p">A handpicked selection of our finest artisan pieces.</p>
-        <ProductGrid items={featured} loading={loading} />
-      </section>
-
-      {/* ── Best sellers ── */}
-      <section className="card classic-section-card" style={{ padding: 24, marginTop: 16 }} aria-label="Best sellers">
-        <div className="h1 classic-section-title">Best sellers</div>
-        <p className="p">Most-loved products from artisans across Rwanda.</p>
-        <ProductGrid items={bestSellers} loading={loading} />
-      </section>
-
-      {/* ── Artisans ── */}
-      <section className="card classic-section-card" style={{ padding: 24, marginTop: 16 }} aria-label="Featured artisans">
-        <div className="h1 classic-section-title">Featured artisans</div>
-        <p className="p">Meet the makers behind the work and the stories that define each piece.</p>
-        <div className="artisan-grid">
-          {ARTISANS.map((a) => (
-            <div key={a.name} className="card artisan-card">
-              <img src={a.img} alt={a.name} loading="lazy" />
-              <div style={{ fontWeight: 800 }}>{a.name}</div>
-              <div className="small">{a.district} · {a.specialty}</div>
-              <div className="small" style={{ marginTop: 6 }}>{a.bio}</div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ── Testimonials ── */}
-      <section className="card classic-section-card" style={{ padding: 24, marginTop: 16 }} aria-label="Customer reviews">
-        <div className="h1 classic-section-title">What our customers say</div>
-        <p className="p">Shoppers love the authentic stories, fast delivery, and quality craftsmanship.</p>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 14, marginTop: 16 }}>
-          {TESTIMONIALS.map((t) => (
-            <div key={t.name} className="card classic-testimonial-card">
-              <div style={{ fontSize: 20, marginBottom: 8 }}>⭐⭐⭐⭐⭐</div>
-              <div className="small" style={{ fontStyle: 'italic', marginBottom: 10 }}>"{t.quote}"</div>
-              <div style={{ fontWeight: 800, fontSize: 13 }}>— {t.name}</div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ── Gallery ── */}
-      <section className="card classic-section-card" style={{ padding: 24, marginTop: 16 }} aria-label="Gallery">
-        <div className="h1 classic-section-title">Gallery</div>
-        <p className="p">A glimpse into the tactile beauty of the artisan world.</p>
-        <div className="gallery-grid" style={{ marginTop: 16 }}>
-          {GALLERY.map((g) => (
-            <div key={g.url} className="card gallery-card">
-              <img src={g.url} alt={g.label} loading="lazy" />
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ── FAQ ── */}
-      <section className="card classic-section-card" style={{ padding: 24, marginTop: 16 }} aria-label="FAQ">
-        <div className="h1 classic-section-title">Frequently asked questions</div>
-        <div style={{ display: 'grid', gap: 10, marginTop: 16 }}>
-          {FAQS.map((f) => (
-            <div key={f.q} className="card" style={{ padding: 16 }}>
-              <div style={{ fontWeight: 800, marginBottom: 6 }}>❓ {f.q}</div>
-              <div className="small">{f.a}</div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ── Partners ── */}
-      <section className="card classic-section-card" style={{ padding: 24, marginTop: 16 }} aria-label="Partners">
-        <div className="h1 classic-section-title">Our partners</div>
-        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginTop: 14 }}>
-          {['Kigali Craft Hub', 'Rwanda Makers Collective', 'Artisan Export Lab', 'Heritage Market'].map((p) => (
-            <span key={p} className="badge">{p}</span>
-          ))}
-        </div>
-      </section>
+        </section>
+      </div>
 
       {/* Back to top */}
       {showTop && (

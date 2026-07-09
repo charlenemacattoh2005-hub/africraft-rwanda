@@ -1,0 +1,115 @@
+/* ═══════════════════════════════════════════════════════════════
+   VENDOR DASHBOARD
+   ═══════════════════════════════════════════════════════════════ */
+
+.vendor-kpi-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 14px;
+  margin-bottom: 24px;
+}
+.vendor-kpi {
+  background: #fff;
+  border-radius: 16px;
+  border: 1px solid rgba(194,65,12,.09);
+  padding: 18px 16px;
+  text-align: center;
+  box-shadow: 0 1px 4px rgba(0,0,0,.05);
+  transition: transform 0.18s, box-shadow 0.18s;
+}
+.vendor-kpi:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(194,65,12,.12); }
+.vendor-kpi-icon  { font-size: 24px; margin-bottom: 8px; }
+.vendor-kpi-val   { font-size: 24px; font-weight: 900; color: #c2410c; line-height: 1; }
+.vendor-kpi-label { font-size: 11px; color: #78716c; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; margin-top: 5px; }
+
+.vendor-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 18px;
+  background: rgba(194,65,12,.05);
+  border: 1px solid rgba(194,65,12,.1);
+  border-radius: 12px;
+  padding: 4px;
+  width: fit-content;
+  flex-wrap: wrap;
+}
+.vendor-tab {
+  padding: 8px 18px;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: #78716c;
+  transition: background 0.15s, color 0.15s, box-shadow 0.15s;
+  white-space: nowrap;
+}
+.vendor-tab.active { background: #fff; color: #c2410c; box-shadow: 0 2px 8px rgba(194,65,12,.15); }
+
+/* Vendor store profile card */
+.vendor-store-card {
+  background: #fff;
+  border-radius: 18px;
+  border: 1px solid rgba(194,65,12,.09);
+  padding: 24px;
+  box-shadow: 0 1px 4px rgba(0,0,0,.05);
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+.vendor-store-avatar {
+  width: 72px; height: 72px; border-radius: 50%;
+  background: linear-gradient(135deg,#c2410c,#f97316);
+  color: #fff; font-size: 28px; font-weight: 900;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 16px rgba(194,65,12,.3); flex-shrink: 0; overflow: hidden;
+}
+.vendor-store-info { flex: 1; min-width: 0; }
+.vendor-store-name { font-size: 18px; font-weight: 900; color: #1c1917; }
+.vendor-store-meta { font-size: 12px; color: #78716c; margin-top: 4px; }
+.vendor-store-actions { display: flex; gap: 8px; }
+
+/* Payout section */
+.vendor-payout-card {
+  background: linear-gradient(135deg, #c2410c 0%, #f97316 100%);
+  border-radius: 18px;
+  padding: 24px;
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(194,65,12,.35);
+  margin-bottom: 24px;
+}
+.vendor-payout-card::before {
+  content: '';
+  position: absolute;
+  top: -30px; right: -30px;
+  width: 140px; height: 140px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.08);
+}
+.vendor-payout-label { font-size: 12px; font-weight: 600; opacity: .8; text-transform: uppercase; letter-spacing: .1em; }
+.vendor-payout-amount { font-size: 36px; font-weight: 900; line-height: 1.1; margin: 8px 0 4px; }
+.vendor-payout-sub { font-size: 12px; opacity: .75; }
+.vendor-payout-btn {
+  margin-top: 16px;
+  padding: 10px 20px;
+  border-radius: 10px;
+  background: rgba(255,255,255,.22);
+  border: 1px solid rgba(255,255,255,.35);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.14s;
+}
+.vendor-payout-btn:hover { background: rgba(255,255,255,.35); }
+
+@media (max-width: 640px) {
+  .vendor-kpi-row { grid-template-columns: 1fr 1fr; }
+  .vendor-tabs { width: 100%; }
+  .vendor-store-card { flex-direction: column; text-align: center; }
+}
