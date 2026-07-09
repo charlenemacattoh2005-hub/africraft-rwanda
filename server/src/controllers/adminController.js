@@ -107,3 +107,60 @@ export async function deleteProduct(req, res, next) {
     return res.json({ message: 'Product deleted' });
   } catch (err) { return next(err); }
 }
+
+export async function createProduct(req, res, next) {
+  try {
+    const { name, description, price, imageUrl, category, stock, isActive, badge, featured } = req.body;
+    if (!name || !description || price == null || !category || stock == null) {
+      return res.status(400).json({ message: 'name, description, price, category and stock are required' });
+    }
+    const product = await Product.create({
+      name, description,
+      price: Number(price),
+      imageUrl: imageUrl || '',
+      category,
+      stock: Number(stock),
+      isActive: isActive !== false,
+      badge: badge || '',
+      featured: featured || false,
+    });
+    return res.status(201).json({ product });
+  } catch (err) { return next(err); }
+}
+
+export async function getSiteStats(req, res, next) {
+  try {
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+
+    const [totalOrders, totalUsers, totalProducts, salesAgg, monthAgg, lastMonthAgg,
+           revenueByCategory, ordersByDay] = await Promise.all([
+      Order.countDocuments(),
+      User.countDocuments({ role: 'customer' }),
+      Product.countDocuments({ isActive: true }),
+      Order.aggregate([{ $group: { _id: null, total: { $sum: '$total' } } }]),
+      Order.aggregate([{ $match: { createdAt: { $gte: startOfMonth } } }, { $group: { _id: null, total: { $sum: '$total' }, count: { $sum: 1 } } }]),
+      Order.aggregate([{ $match: { createdAt: { $gte: startOfLastMonth, $lt: startOfMonth } } }, { $group: { _id: null, total: { $sum: '$total' }, count: { $sum: 1 } } }]),
+      Order.aggregate([
+        { $unwind: '$items' },
+        { $group: { _id: '$items.category', revenue: { $sum: '$items.lineTotal' }, qty: { $sum: '$items.quantity' } } },
+        { $sort: { revenue: -1 } }, { $limit: 8 },
+      ]),
+      Order.aggregate([
+        { $match: { createdAt: { $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) } } },
+        { $group: { _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } }, revenue: { $sum: '$total' }, orders: { $sum: 1 } } },
+        { $sort: { _id: 1 } },
+      ]),
+    ]);
+
+    return res.json({
+      totalOrders, totalUsers, totalProducts,
+      totalRevenue: salesAgg[0]?.total || 0,
+      thisMonth: { revenue: monthAgg[0]?.total || 0, orders: monthAgg[0]?.count || 0 },
+      lastMonth: { revenue: lastMonthAgg[0]?.total || 0, orders: lastMonthAgg[0]?.count || 0 },
+      revenueByCategory,
+      ordersByDay,
+    });
+  } catch (err) { return next(err); }
+}

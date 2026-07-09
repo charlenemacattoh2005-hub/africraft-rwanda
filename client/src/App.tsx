@@ -19,6 +19,9 @@ import CategoriesPage from './pages/CategoriesPage';
 import AdminStatsPage from './pages/AdminStatsPage';
 import AdminReviewModerationPage from './pages/AdminReviewModerationPage';
 import AdminProductsPage from './pages/AdminProductsPage';
+import AdminAnalyticsPage from './pages/AdminAnalyticsPage';
+import AdminSettingsPage from './pages/AdminSettingsPage';
+import AdminCategoriesPage from './pages/AdminCategoriesPage';
 import ContactPage from './pages/ContactPage';
 import CustomersPage from './pages/CustomersPage';
 import OrdersAdminPage from './pages/OrdersAdminPage';
@@ -58,9 +61,12 @@ export default function App() {
         <Route path="/suggested-products" element={<SuggestedProductsPage />} />
         <Route path="/features" element={<FeaturesPage />} />
         <Route path="/admin" element={<AdminStatsPage />} />
-        <Route path="/admin/reviews"   element={<AdminReviewModerationPage />} />
-        <Route path="/admin/products"  element={<AdminProductsPage />} />
-        <Route path="/admin/customers" element={<CustomersPage />} />
+        <Route path="/admin/reviews"    element={<AdminReviewModerationPage />} />
+        <Route path="/admin/products"   element={<AdminProductsPage />} />
+        <Route path="/admin/customers"  element={<CustomersPage />} />
+        <Route path="/admin/analytics"  element={<AdminAnalyticsPage />} />
+        <Route path="/admin/settings"   element={<AdminSettingsPage />} />
+        <Route path="/admin/categories" element={<AdminCategoriesPage />} />
         <Route path="/orders" element={<OrdersPage />} />
         <Route path="/orders/:id" element={<OrderDetailsPage />} />
         <Route path="/order-confirmation" element={<OrderConfirmationPage />} />
