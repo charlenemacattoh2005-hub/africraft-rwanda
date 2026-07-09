@@ -3,7 +3,7 @@ import { Route, Routes } from 'react-router-dom';
 
 import Layout from './components/Layout';
 
-// Public / customer pages
+// ── Public / customer pages ──────────────────────────────────
 import HomePage              from './pages/HomePage';
 import ProductsPage          from './pages/ProductsPage';
 import ProductDetailsPage    from './pages/ProductPageWithReviews';
@@ -20,7 +20,7 @@ import CategoriesPage        from './pages/CategoriesPage';
 import ContactPage           from './pages/ContactPage';
 import PaymentSimulationPage from './pages/PaymentSimulationPage';
 
-// Admin pages (rendered WITHOUT the public Layout)
+// ── Admin pages — rendered WITHOUT the public Layout ─────────
 import AdminStatsPage            from './pages/AdminStatsPage';
 import AdminProductsPage         from './pages/AdminProductsPage';
 import AdminCategoriesPage       from './pages/AdminCategoriesPage';
@@ -34,10 +34,11 @@ import OrdersAdminPage           from './pages/OrdersAdminPage';
 import CustomersPage             from './pages/CustomersPage';
 import AdminReviewModerationPage from './pages/AdminReviewModerationPage';
 
-// Role dashboards (also outside public Layout)
+// ── Role dashboards — also outside public Layout ─────────────
 import VendorDashboardPage from './pages/VendorDashboardPage';
 import RiderDashboardPage  from './pages/RiderDashboardPage';
 
+// ── 404 inside public layout ─────────────────────────────────
 function NotFoundPage() {
   return (
     <div className="container page" style={{ paddingTop: 60, textAlign: 'center' }}>
@@ -53,7 +54,9 @@ export default function App() {
   return (
     <Routes>
 
-      {/* ── Admin routes — NO public Layout wrapper ── */}
+      {/* ════════════════════════════════════════════════════
+          ADMIN — no public Layout, no public nav/footer
+          ════════════════════════════════════════════════════ */}
       <Route path="/admin"                       element={<AdminStatsPage />} />
       <Route path="/admin/orders"                element={<OrdersAdminPage />} />
       <Route path="/admin/orders/returns"        element={<OrdersAdminPage />} />
@@ -85,37 +88,38 @@ export default function App() {
       <Route path="/admin/content/*"             element={<AdminSettingsPage />} />
       <Route path="/admin/*"                     element={<AdminStatsPage />} />
 
-      {/* ── Vendor routes — NO public Layout wrapper ── */}
+      {/* ════════════════════════════════════════════════════
+          VENDOR — no public Layout
+          ════════════════════════════════════════════════════ */}
       <Route path="/vendor"   element={<VendorDashboardPage />} />
       <Route path="/vendor/*" element={<VendorDashboardPage />} />
 
-      {/* ── Rider routes — NO public Layout wrapper ── */}
+      {/* ════════════════════════════════════════════════════
+          RIDER — no public Layout
+          ════════════════════════════════════════════════════ */}
       <Route path="/rider"   element={<RiderDashboardPage />} />
       <Route path="/rider/*" element={<RiderDashboardPage />} />
 
-      {/* ── Public routes — WITH public Layout wrapper ── */}
-      <Route path="/*" element={
-        <Layout>
-          <Routes>
-            <Route path="/"                   element={<HomePage />} />
-            <Route path="/products"           element={<ProductsPage />} />
-            <Route path="/products/:id"       element={<ProductDetailsPage />} />
-            <Route path="/categories"         element={<CategoriesPage />} />
-            <Route path="/cart"               element={<CartPage />} />
-            <Route path="/checkout"           element={<CheckoutPage />} />
-            <Route path="/payment-simulation" element={<PaymentSimulationPage />} />
-            <Route path="/wishlist"           element={<WishlistPage />} />
-            <Route path="/contact"            element={<ContactPage />} />
-            <Route path="/login"              element={<LoginPage />} />
-            <Route path="/register"           element={<RegisterPage />} />
-            <Route path="/profile"            element={<ProfilePage />} />
-            <Route path="/orders"             element={<OrdersPage />} />
-            <Route path="/orders/:id"         element={<OrderDetailsPage />} />
-            <Route path="/order-confirmation" element={<OrderConfirmationPage />} />
-            <Route path="*"                   element={<NotFoundPage />} />
-          </Routes>
-        </Layout>
-      } />
+      {/* ════════════════════════════════════════════════════
+          PUBLIC — each route individually wrapped in Layout
+          (no nested <Routes>, no catch-all ambiguity)
+          ════════════════════════════════════════════════════ */}
+      <Route path="/"                   element={<Layout><HomePage /></Layout>} />
+      <Route path="/products"           element={<Layout><ProductsPage /></Layout>} />
+      <Route path="/products/:id"       element={<Layout><ProductDetailsPage /></Layout>} />
+      <Route path="/categories"         element={<Layout><CategoriesPage /></Layout>} />
+      <Route path="/cart"               element={<Layout><CartPage /></Layout>} />
+      <Route path="/checkout"           element={<Layout><CheckoutPage /></Layout>} />
+      <Route path="/payment-simulation" element={<Layout><PaymentSimulationPage /></Layout>} />
+      <Route path="/wishlist"           element={<Layout><WishlistPage /></Layout>} />
+      <Route path="/contact"            element={<Layout><ContactPage /></Layout>} />
+      <Route path="/login"              element={<Layout><LoginPage /></Layout>} />
+      <Route path="/register"           element={<Layout><RegisterPage /></Layout>} />
+      <Route path="/profile"            element={<Layout><ProfilePage /></Layout>} />
+      <Route path="/orders"             element={<Layout><OrdersPage /></Layout>} />
+      <Route path="/orders/:id"         element={<Layout><OrderDetailsPage /></Layout>} />
+      <Route path="/order-confirmation" element={<Layout><OrderConfirmationPage /></Layout>} />
+      <Route path="*"                   element={<Layout><NotFoundPage /></Layout>} />
 
     </Routes>
   );
