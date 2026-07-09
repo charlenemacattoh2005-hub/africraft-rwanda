@@ -54,8 +54,8 @@ function Inner() {
   useEffect(() => {
     let ok = true;
     Promise.all([fetchAdminStats(), fetchActivityLog()])
-      .then(([s, a]) => { if (!ok) return; setStats(s); setActivity(a.log || []); })
-      .catch(e => { if (ok) setError(e?.message || 'Failed to load dashboard'); })
+      .then(([s, a]) => { if (!ok) return; setStats(s); setActivity(a?.log || []); })
+      .catch(e => { if (ok) { setError(e?.message || 'Failed to load dashboard'); setLoading(false); } })
       .finally(() => { if (ok) setLoading(false); });
     return () => { ok = false; };
   }, []);

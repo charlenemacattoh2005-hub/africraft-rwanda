@@ -22,7 +22,8 @@ function Inner() {
 
   useEffect(() => {
     Promise.all([fetchNotifications(), fetchActivityLog()])
-      .then(([n, a]) => { setNotifications(n.notifications || []); setLog(a.log || []); })
+      .then(([n, a]) => { setNotifications(n?.notifications || []); setLog(a?.log || []); })
+      .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
 

@@ -132,6 +132,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   /* ── fetch notifications ── */
   useEffect(() => {
+    const token = localStorage.getItem('africraft_auth_token') || sessionStorage.getItem('africraft_auth_token');
+    if (!token) return;
     fetchNotifications()
       .then(d => setNotifications((d.notifications || []).slice(0, 6)))
       .catch(() => {});
