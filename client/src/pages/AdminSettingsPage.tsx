@@ -4,7 +4,7 @@ import AdminLayout from '../components/AdminLayout';
 
 export default function AdminSettingsPage() {
   return (
-    <RequireAuth>
+    <RequireAuth roles={['admin']}>
       <AdminLayout><Inner /></AdminLayout>
     </RequireAuth>
   );

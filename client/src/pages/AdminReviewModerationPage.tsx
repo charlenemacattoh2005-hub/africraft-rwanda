@@ -7,7 +7,7 @@ const stars = (n: number) => '★'.repeat(n) + '☆'.repeat(5 - n);
 
 export default function AdminReviewModerationPage() {
   return (
-    <RequireAuth>
+    <RequireAuth roles={['admin']}>
       <AdminLayout><Inner /></AdminLayout>
     </RequireAuth>
   );

@@ -4,7 +4,7 @@ import AdminLayout from '../components/AdminLayout';
 import { fetchAdminCustomers, fetchAdminOrders } from '../services/admin';
 
 export default function CustomersPage() {
-  return <RequireAuth><AdminLayout><Inner /></AdminLayout></RequireAuth>;
+  return <RequireAuth roles={['admin']}><AdminLayout><Inner /></AdminLayout></RequireAuth>;
 }
 
 function CustomerDrawer({ customer, orders, onClose }: { customer: any; orders: any[]; onClose: () => void }) {
