@@ -13,13 +13,16 @@ export default function LoginPage() {
   const [loading,  setLoading]  = useState(false);
   const [showPw,   setShowPw]   = useState(false);
 
-  // Subscribe to the shared warmup server state
+  // Subscribe to the shared warm-up server state
   const [serverState, setServerState] = useState<ServerState>('unknown');
 
   useEffect(() => {
-    // onServerState returns an unsubscribe fn — clean up on unmount
-    const unsub = onServerState(setServerState);
-    return unsub;
+    return onServerState(s => {
+      setServerState(s);
+      // When server becomes ready, clear any cold-start error so the
+      // user can retry without stale messaging on screen
+      if (s === 'ready') setError(null);
+    });
   }, []);
 
   async function onSubmit(e: React.FormEvent) {
@@ -36,48 +39,111 @@ export default function LoginPage() {
         payload?.role === 'rider'  ? '/rider'  : '/products';
       navigate(dest);
     } catch (err: any) {
-      setError(err?.message || 'Login failed. Please try again.');
+      const msg: string = err?.message || 'Login failed. Please try again.';
+
+      // ── KEY FIX ──────────────────────────────────────────────────
+      // If the server is still starting up (cold start in progress),
+      // the warmup banner already explains the situation.
+      // Do NOT also show the network error — that causes the double
+      // message problem. Instead, show a short, calm message that
+      // doesn't blame the user's internet.
+      if (serverState === 'starting' && (err?.isNetwork || err?.isTimeout || err?.isFinalFailure)) {
+        setError('Server is still starting. Please wait and try again in a moment.');
+      } else {
+        setError(msg);
+      }
+      // ─────────────────────────────────────────────────────────────
     } finally {
       setLoading(false);
     }
   }
 
-  // ── Server status banner ────────────────────────────────────
-  const ServerBanner = () => {
-    if (serverState === 'ready') {
-      return (
-        <div style={{
-          padding: '8px 14px', borderRadius: 10,
-          background: '#f0fdf4', border: '1px solid #22c55e',
-          color: '#15803d', fontSize: 12, fontWeight: 600,
-          display: 'flex', alignItems: 'center', gap: 6,
-        }}>
-          ✓ Server is ready
-        </div>
-      );
-    }
+  // ── Server status banner ──────────────────────────────────────
+  // Renders the appropriate banner based on server state.
+  // Never shown simultaneously with a network error message.
+  function ServerBanner() {
+    switch (serverState) {
+      case 'ready':
+        return (
+          <div
+            role="status"
+            aria-live="polite"
+            style={{
+              padding: '8px 14px', borderRadius: 10,
+              background: '#f0fdf4', border: '1px solid #22c55e',
+              color: '#15803d', fontSize: 13, fontWeight: 600,
+              display: 'flex', alignItems: 'center', gap: 8,
+            }}
+          >
+            <span aria-hidden="true">✓</span>
+            Server is ready — you can sign in.
+          </div>
+        );
 
-    if (serverState === 'starting') {
-      return (
-        <div style={{
-          padding: '10px 14px', borderRadius: 10,
-          background: '#fffbeb', border: '1px solid #f59e0b',
-          color: '#92400e', fontSize: 12, fontWeight: 600,
-          display: 'flex', alignItems: 'center', gap: 8,
-        }}>
-          <span style={{
-            display: 'inline-block',
-            animation: 'spin 1s linear infinite',
-          }}>⟳</span>
-          Server is starting up — this takes 20–60 seconds on first load.
-          You can still try signing in.
-        </div>
-      );
-    }
+      case 'starting':
+        return (
+          <div
+            role="status"
+            aria-live="polite"
+            style={{
+              padding: '12px 14px', borderRadius: 10,
+              background: '#fffbeb', border: '1px solid #f59e0b',
+              color: '#92400e', fontSize: 13, fontWeight: 600,
+              display: 'flex', alignItems: 'flex-start', gap: 10,
+            }}
+          >
+            <span
+              aria-hidden="true"
+              style={{ display: 'inline-block', animation: 'spin 1s linear infinite', flexShrink: 0, fontSize: 16 }}
+            >
+              ⟳
+            </span>
+            <div>
+              <div>Server is starting. This may take up to one minute.</div>
+              <div style={{ fontWeight: 400, fontSize: 12, marginTop: 4, opacity: .8 }}>
+                You can submit the form — your login will retry automatically.
+              </div>
+            </div>
+          </div>
+        );
 
-    // 'unknown' — still on first ping, show nothing yet
-    return null;
-  };
+      case 'failed':
+        return (
+          <div
+            role="alert"
+            style={{
+              padding: '12px 14px', borderRadius: 10,
+              background: '#fef2f2', border: '1px solid #fca5a5',
+              color: '#991b1b', fontSize: 13, fontWeight: 600,
+              lineHeight: 1.6,
+            }}
+          >
+            <div style={{ fontWeight: 700, marginBottom: 6 }}>
+              The DellCraft server is temporarily unavailable.
+            </div>
+            <div style={{ fontWeight: 400, fontSize: 12 }}>
+              Possible reasons:<br />
+              • Render is still starting.<br />
+              • The backend deployment failed.<br />
+              • The server is under maintenance.<br />
+              <br />
+              Please try again in one minute.
+            </div>
+          </div>
+        );
+
+      default:
+        // 'unknown' — first ping hasn't returned yet, show nothing
+        return null;
+    }
+  }
+
+  // Decide whether to show the form-level error.
+  // Suppress network/cold-start errors when the warmup banner already
+  // explains the situation — prevents the double-message problem.
+  const showError =
+    error !== null &&
+    !(serverState === 'starting' && error.includes('Server is still starting'));
 
   return (
     <div className="auth-page">
@@ -93,8 +159,8 @@ export default function LoginPage() {
             Authentic Rwandan crafts, delivered to your door.
           </div>
           <p className="auth-left-sub">
-            Join thousands of customers discovering handmade treasures
-            from local artisans.
+            Join thousands of customers discovering handmade
+            treasures from local artisans.
           </p>
           <div className="auth-left-features">
             {[
@@ -102,9 +168,7 @@ export default function LoginPage() {
               '✨ Handcrafted quality',
               '🚚 Fast local delivery',
               '🔒 Secure checkout',
-            ].map(f => (
-              <div key={f} className="auth-left-feature">{f}</div>
-            ))}
+            ].map(f => <div key={f} className="auth-left-feature">{f}</div>)}
           </div>
         </div>
       </div>
@@ -129,6 +193,7 @@ export default function LoginPage() {
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 autoComplete="email"
+                aria-label="Email address"
               />
             </div>
 
@@ -143,6 +208,7 @@ export default function LoginPage() {
                   onChange={e => setPassword(e.target.value)}
                   autoComplete="current-password"
                   style={{ paddingRight: 44 }}
+                  aria-label="Password"
                 />
                 <button
                   type="button"
@@ -160,12 +226,14 @@ export default function LoginPage() {
               </div>
             </div>
 
-            {/* Server status */}
+            {/* Server warm-up banner — ONE source of truth for server state */}
             <ServerBanner />
 
-            {/* Error message */}
-            {error && (
-              <div className="auth-error" role="alert">⚠️ {error}</div>
+            {/* Form-level error — only shown when not redundant with banner */}
+            {showError && (
+              <div className="auth-error" role="alert">
+                ⚠️ {error}
+              </div>
             )}
 
             <button
@@ -208,7 +276,8 @@ export default function LoginPage() {
           </div>
 
           <p className="auth-switch">
-            Don't have an account? <Link to="/register">Create one</Link>
+            Don't have an account?{' '}
+            <Link to="/register">Create one</Link>
           </p>
 
         </div>

@@ -9,6 +9,7 @@ services:
     #   npm start   → runs "npm run start --prefix server"
     #              → runs "node src/index.js" inside server/
     buildCommand: npm install && npm install --prefix server
+    startCommand: node server/src/index.js
     envVars:
       - key: NODE_ENV
         value: production

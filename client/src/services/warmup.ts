@@ -1,46 +1,53 @@
 /**
  * warmup.ts — Server warm-up service
  *
- * Pings the backend health endpoint on app startup so the Render
- * free-tier server wakes up before the user tries to interact.
+ * Pings GET /health on app load so the Render free-tier server
+ * wakes up before the user tries to log in or browse products.
  *
- * Features:
- * - Polls GET /health every 5s until the server responds 200
- * - Exposes shared server state: 'unknown' | 'starting' | 'ready'
- * - Components can subscribe to state changes via onServerState()
- * - Never blocks the UI — fully asynchronous
+ * State machine:
+ *   'unknown'  — initial state, no ping has completed yet
+ *   'starting' — at least one ping failed (cold start in progress)
+ *                NOTE: state only changes to 'starting' after the
+ *                SECOND failed ping (5s after load) so we don't flash
+ *                the banner immediately on fast connections.
+ *   'ready'    — server responded 200
+ *   'failed'   — server did not respond after MAX_ATTEMPTS
+ *
+ * Usage:
+ *   warmupServer()              — start polling (called once in main.tsx)
+ *   getServerState()            — read current state
+ *   onServerState(cb)           — subscribe to changes, returns unsub fn
  */
 import { API_BASE_URL } from './api';
 
-export type ServerState = 'unknown' | 'starting' | 'ready';
+export type ServerState = 'unknown' | 'starting' | 'ready' | 'failed';
 
-// ── Shared state ──────────────────────────────────────────────
-let currentState: ServerState           = 'unknown';
+// ── Shared singleton state ────────────────────────────────────
+let currentState: ServerState = 'unknown';
 let started = false;
 const subscribers: Array<(s: ServerState) => void> = [];
 
 function setState(next: ServerState): void {
   if (next === currentState) return;
   currentState = next;
-  subscribers.forEach(fn => fn(next));
+  // Notify all subscribers
+  subscribers.forEach(fn => {
+    try { fn(next); } catch { /* never crash warmup loop on subscriber error */ }
+  });
 }
 
-/** Get the current known server state without subscribing */
 export function getServerState(): ServerState {
   return currentState;
 }
 
 /**
  * Subscribe to server state changes.
- * Returns an unsubscribe function — call it in useEffect cleanup.
- *
- * @example
- * useEffect(() => onServerState(setState), []);
+ * Immediately called with the current state.
+ * Returns an unsubscribe function for useEffect cleanup.
  */
 export function onServerState(fn: (s: ServerState) => void): () => void {
   subscribers.push(fn);
-  // Immediately call with current state so subscriber is in sync
-  fn(currentState);
+  fn(currentState); // sync current state to new subscriber
   return () => {
     const i = subscribers.indexOf(fn);
     if (i !== -1) subscribers.splice(i, 1);
@@ -48,30 +55,21 @@ export function onServerState(fn: (s: ServerState) => void): () => void {
 }
 
 /**
- * Start the warm-up loop (idempotent — safe to call multiple times).
- * Called once in main.tsx on app load.
+ * Start the warm-up poll loop.
+ * Idempotent — safe to call multiple times.
  */
 export function warmupServer(): void {
   if (started) return;
   started = true;
 
-  const POLL_INTERVAL = 5000;   // 5s between pings
-  const MAX_ATTEMPTS  = 20;     // give up after 100s
-  let   attempt       = 0;
+  const PING_TIMEOUT_MS = 8_000;  // 8s per ping
+  const POLL_INTERVAL   = 5_000;  // 5s between pings
+  const MAX_ATTEMPTS    = 24;     // 24 × 5s = 120s max wait time
+  let   failedPings     = 0;
 
   function ping(): void {
-    if (attempt >= MAX_ATTEMPTS) {
-      // After max attempts, leave state as 'starting' — don't show error,
-      // but stop polling so we don't hammer the server forever
-      console.warn('[warmup] Server did not respond after 100s — stopping poll');
-      return;
-    }
-
-    attempt++;
-
-    // Set to 'starting' on first failed attempt (not immediately on load)
     const controller = new AbortController();
-    const timeout    = setTimeout(() => controller.abort(), 8000);
+    const timeout    = setTimeout(() => controller.abort(), PING_TIMEOUT_MS);
 
     fetch(`${API_BASE_URL}/health`, {
       method: 'GET',
@@ -81,20 +79,41 @@ export function warmupServer(): void {
       .then(r => {
         clearTimeout(timeout);
         if (r.ok) {
+          console.info('[warmup] Server ready ✓');
           setState('ready');
-          console.log('[warmup] Server ready ✓');
+          // Stop polling — server is awake
         } else {
-          // Server is up but unhealthy — keep polling
-          if (currentState !== 'ready') setState('starting');
-          setTimeout(ping, POLL_INTERVAL);
+          // Server responded but with an error (shouldn't happen for /health)
+          console.warn(`[warmup] /health returned ${r.status}`);
+          onPingFail();
         }
       })
-      .catch(() => {
+      .catch(err => {
         clearTimeout(timeout);
-        if (currentState !== 'ready') setState('starting');
-        setTimeout(ping, POLL_INTERVAL);
+        console.info(`[warmup] Ping failed (${err?.name ?? 'NetworkError'}) — server may be starting`);
+        onPingFail();
       });
   }
 
+  function onPingFail(): void {
+    failedPings++;
+
+    if (failedPings >= MAX_ATTEMPTS) {
+      console.warn('[warmup] Server did not respond after 120s — stopping poll');
+      setState('failed');
+      return;
+    }
+
+    // Only flip to 'starting' after the SECOND failed ping (~10s after load).
+    // This avoids flashing the cold-start banner on fast servers that just
+    // took a couple of hundred ms to respond to the very first request.
+    if (failedPings >= 2 && currentState !== 'ready') {
+      setState('starting');
+    }
+
+    setTimeout(ping, POLL_INTERVAL);
+  }
+
+  // Start first ping immediately
   ping();
 }
