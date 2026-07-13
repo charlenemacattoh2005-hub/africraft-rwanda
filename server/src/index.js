@@ -20,7 +20,41 @@ import { errorHandler } from './middleware/errorHandler.js';
 
 const app = express();
 
-app.use(cors({ origin: true, credentials: true }));
+const ALLOWED_ORIGINS = [
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'https://africraft-rwanda-sable.vercel.app',
+  // Allow any Vercel preview deployment for this project
+  /^https:\/\/africraft-rwanda[a-z0-9-]*\.vercel\.app$/,
+  // Allow any custom domain set via CLIENT_URL env var
+  ...(process.env.CLIENT_URL ? [process.env.CLIENT_URL] : []),
+];
+
+const corsOptions = {
+  origin(origin, callback) {
+    // Allow requests with no origin (Render health checks, curl, Postman, SSR)
+    if (!origin) return callback(null, true);
+
+    const allowed = ALLOWED_ORIGINS.some(o =>
+      typeof o === 'string' ? o === origin : o.test(origin)
+    );
+
+    if (allowed) {
+      callback(null, true);
+    } else {
+      console.warn(`[cors] Blocked origin: ${origin}`);
+      callback(new Error(`CORS: origin ${origin} not allowed`));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  optionsSuccessStatus: 200, // Some legacy browsers choke on 204
+};
+
+app.use(cors(corsOptions));
+// Explicitly handle OPTIONS preflight for all routes
+app.options('*', cors(corsOptions));
 app.use(express.json({ limit: '2mb' }));
 
 app.get('/health', (_req, res) => res.json({ ok: true, service: 'africraft-api' }));
