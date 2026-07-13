@@ -1,5 +1,4 @@
 services:
-  # ── Backend API ────────────────────────────────────────────
   - type: web
     name: dellcraft-api
     runtime: node
@@ -10,10 +9,6 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
-      - key: MONGODB_URI
-        sync: false
-      - key: JWT_SECRET
-        sync: false
       - key: JWT_EXPIRE
         value: 7d
       - key: CLIENT_URL
@@ -22,20 +17,13 @@ services:
         value: nyd9fgxr
       - key: CLOUDINARY_API_KEY
         value: "633921147819551"
+      # Set these in the Render dashboard → Environment tab:
+      # MONGODB_URI  — your MongoDB Atlas connection string
+      # JWT_SECRET   — a long random secret
+      # CLOUDINARY_API_SECRET — your Cloudinary secret
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
       - key: CLOUDINARY_API_SECRET
         sync: false
-
-  # ── Frontend static site ───────────────────────────────────
-  - type: web
-    name: dellcraft-web
-    runtime: static
-    rootDir: client
-    buildCommand: npm install && npm run build
-    staticPublishPath: dist
-    envVars:
-      - key: VITE_API_URL
-        value: https://dellcraft-api.onrender.com
-    routes:
-      - type: rewrite
-        source: /*
-        destination: /index.html
