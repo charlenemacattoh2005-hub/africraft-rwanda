@@ -1,9 +1,14 @@
 services:
+  # ── Backend API ────────────────────────────────────────────
   - type: web
     name: dellcraft-api
     runtime: node
-    rootDir: server
-    buildCommand: npm install
+    # rootDir is intentionally NOT set — uses repo root.
+    # The root package.json scripts proxy to server/:
+    #   npm install → installs root deps (concurrently)
+    #   npm start   → runs "npm run start --prefix server"
+    #              → runs "node src/index.js" inside server/
+    buildCommand: npm install && npm install --prefix server
     startCommand: npm start
     envVars:
       - key: NODE_ENV
@@ -23,6 +28,7 @@ services:
       - key: CLOUDINARY_API_SECRET
         sync: false
 
+  # ── Frontend (static) ──────────────────────────────────────
   - type: web
     name: dellcraft-web
     runtime: static
