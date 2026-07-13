@@ -39,7 +39,7 @@ const ADMIN_NAV = [
     section: 'Main',
     items: [
       { to: '/admin',            icon: 'grid',    label: 'Dashboard'   },
-      { to: '/admin/orders',     icon: 'box',     label: 'Orders',     badge: '!' },
+      { to: '/admin/orders',     icon: 'box',     label: 'Orders' },
       { to: '/admin/products',   icon: 'layers',  label: 'Products'    },
       { to: '/admin/categories', icon: 'tag',     label: 'Categories'  },
       { to: '/admin/users',      icon: 'users',   label: 'Users'       },
@@ -202,7 +202,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     {IC[item.icon]}
                   </span>
                   <span className="adm-sb-item-label">{item.label}</span>
-                  {item.badge && <span className="adm-sb-badge">{item.badge}</span>}
                 </Link>
               ))}
             </React.Fragment>

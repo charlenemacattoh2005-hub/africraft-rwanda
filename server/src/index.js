@@ -14,6 +14,7 @@ import reviewRoutes      from './routes/reviewRoutes.js';
 import userRoutes        from './routes/userRoutes.js';
 import adminRoutes       from './routes/adminRoutes.js';
 import adminReviewRoutes from './routes/adminReviewRoutes.js';
+import uploadRoutes      from './routes/uploadRoutes.js';
 import { getPublicSiteContent } from './controllers/siteController.js';
 import { errorHandler } from './middleware/errorHandler.js';
 
@@ -37,6 +38,7 @@ app.use('/api/reviews',      reviewRoutes);
 app.use('/api/users',        userRoutes);
 app.use('/api/admin',        adminRoutes);
 app.use('/api/admin/reviews',adminReviewRoutes);
+app.use('/api/upload',       uploadRoutes);
 
 app.use(errorHandler);
 

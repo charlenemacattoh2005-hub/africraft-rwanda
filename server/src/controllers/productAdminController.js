@@ -27,9 +27,20 @@ export async function createProduct(req, res, next) {
       name, description, price, discountPrice, imageUrl, images,
       category, stock, stockTracking, sku, barcode,
       status, isActive, badge, featured, variants,
+      vendorId,  // optional: admin can assign product to a specific vendor
     } = req.body;
     if (!name || !description || price == null || !category || stock == null)
       return res.status(400).json({ message: 'name, description, price, category and stock are required' });
+
+    // If admin supplies vendorId, verify the user exists and has vendor role
+    let resolvedVendor = null;
+    if (vendorId) {
+      const { User } = await import('../models/User.js');
+      const vendor = await User.findOne({ _id: vendorId, role: 'vendor' });
+      if (!vendor) return res.status(400).json({ message: 'Vendor not found or user is not a vendor' });
+      resolvedVendor = vendor._id;
+    }
+
     const product = await Product.create({
       name, description,
       price:         Number(price),
@@ -46,6 +57,7 @@ export async function createProduct(req, res, next) {
       badge:         badge || '',
       featured:      !!featured,
       variants:      Array.isArray(variants) ? variants : [],
+      vendor:        resolvedVendor,
     });
     return res.status(201).json({ product });
   } catch (err) { return next(err); }

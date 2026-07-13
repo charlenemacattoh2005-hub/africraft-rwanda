@@ -68,6 +68,9 @@ export const deleteAdminCategory    = (id: string)                      => del(`
 export const fetchAdminReviews      = (params?: string)                 => apiGetAuth(`/api/admin/reviews${params ? '?' + params : ''}`);
 export const deleteAdminReview      = (id: string)                      => del(`/api/admin/reviews/${id}`);
 
+// Vendor list (for admin dropdowns)
+export const fetchVendorList        = ()                                => apiGetAuth('/api/admin/vendors/list');
+
 // Vendor
 export const fetchVendorStats       = ()                                => apiGetAuth('/api/admin/vendor/stats');
 export const fetchVendorProducts    = ()                                => apiGetAuth('/api/admin/vendor/products');

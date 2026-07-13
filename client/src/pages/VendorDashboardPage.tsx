@@ -1,6 +1,7 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import RequireAuth from '../components/RequireAuth';
 import AdminLayout from '../components/AdminLayout';
+import ImageUpload from '../components/ImageUpload';
 import { fetchVendorStats, fetchVendorProducts, createVendorProduct, updateVendorProduct, deleteVendorProduct, fetchVendorOrders, fetchVendorPayout } from '../services/admin';
 import { getAuthPayload } from '../services/api';
 
@@ -24,13 +25,6 @@ function ProductModal({ title, form, setForm, onSave, onClose, saving }: {
   title: string; form: any; setForm: (f: any) => void;
   onSave: () => void; onClose: () => void; saving: boolean;
 }) {
-  const imgRef = useRef<HTMLInputElement>(null);
-  async function handleImg(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]; if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => setForm({ ...form, imageUrl: reader.result as string });
-    reader.readAsDataURL(file);
-  }
   return (
     <div className="admin-modal-overlay" onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
       <div className="admin-modal admin-modal-wide">
@@ -65,12 +59,11 @@ function ProductModal({ title, form, setForm, onSave, onClose, saving }: {
               </div>
             </div>
             <div className="admin-field"><label>Product Image</label>
-              <div className="product-img-input-row">
-                <input className="input" value={form.imageUrl.startsWith('data:') ? '' : form.imageUrl}
-                  onChange={e => setForm({ ...form, imageUrl: e.target.value })} placeholder="Paste URL or upload…" />
-                <button type="button" className="btn" onClick={() => imgRef.current?.click()}>📁 Upload</button>
-              </div>
-              <input ref={imgRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleImg} />
+              <ImageUpload
+                value={form.imageUrl}
+                onChange={url => setForm({ ...form, imageUrl: url })}
+                label="Product image"
+              />
             </div>
             <label className="admin-checkbox-label">
               <input type="checkbox" checked={form.featured} onChange={e => setForm({ ...form, featured: e.target.checked })} />

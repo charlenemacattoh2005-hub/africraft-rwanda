@@ -1,6 +1,17 @@
 import { User }  from '../models/User.js';
 import bcrypt from 'bcrypt';
 
+// ── List all vendors (for admin dropdowns) ────────────────────
+export async function getVendorList(req, res, next) {
+  try {
+    const vendors = await User.find({ role: 'vendor', isActive: true })
+      .select('_id fullName email')
+      .sort({ fullName: 1 })
+      .lean();
+    return res.json({ vendors });
+  } catch (err) { return next(err); }
+}
+
 export async function getAdminCustomers(req, res, next) {
   try {
     const { search, page = 1, limit = 50 } = req.query;

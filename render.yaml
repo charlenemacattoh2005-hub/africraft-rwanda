@@ -18,6 +18,12 @@ services:
         value: 7d
       - key: CLIENT_URL
         value: https://africraft-rwanda-sable.vercel.app
+      - key: CLOUDINARY_CLOUD_NAME
+        value: nyd9fgxr
+      - key: CLOUDINARY_API_KEY
+        value: "633921147819551"
+      - key: CLOUDINARY_API_SECRET
+        sync: false   # Set this manually in the Render dashboard — never commit secrets
 
   - type: web
     name: dellcraft-web
