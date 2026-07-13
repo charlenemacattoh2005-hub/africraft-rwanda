@@ -18,7 +18,11 @@ export default function LoginPage() {
     try {
       await login(email, password);
       const payload = getAuthPayload();
-      navigate(payload?.role === 'admin' ? '/admin' : '/products');
+      const dest = payload?.role === 'admin' ? '/admin'
+        : payload?.role === 'vendor' ? '/vendor'
+        : payload?.role === 'rider'  ? '/rider'
+        : '/products';
+      navigate(dest);
     } catch (err: any) {
       setError(err?.message || 'Login failed. Check your credentials.');
     } finally {
@@ -93,6 +97,18 @@ export default function LoginPage() {
               <button className="auth-demo-btn" type="button"
                 onClick={() => { setEmail('admin@dellcraft.rw'); setPassword('Admin@2026!'); }}>
                 👑 Admin — admin@dellcraft.rw
+              </button>
+              <button className="auth-demo-btn" type="button"
+                onClick={() => { setEmail('vendor@dellcraft.rw'); setPassword('Admin@2026!'); }}>
+                🏪 Vendor — vendor@dellcraft.rw
+              </button>
+              <button className="auth-demo-btn" type="button"
+                onClick={() => { setEmail('rider@dellcraft.rw'); setPassword('Admin@2026!'); }}>
+                🛵 Rider — rider@dellcraft.rw
+              </button>
+              <button className="auth-demo-btn" type="button"
+                onClick={() => { setEmail('customer@dellcraft.rw'); setPassword('Admin@2026!'); }}>
+                👤 Customer — customer@dellcraft.rw
               </button>
             </div>
           </div>
