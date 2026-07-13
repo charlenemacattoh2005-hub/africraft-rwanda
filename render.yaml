@@ -1,23 +1,19 @@
 services:
-  # ─────────────────────────────────────────────────────────
-  # BACKEND API — Node/Express
-  # ─────────────────────────────────────────────────────────
+  # ── Backend API ────────────────────────────────────────────
   - type: web
     name: dellcraft-api
     runtime: node
-    # Root directory is intentionally blank (uses repo root).
-    # postinstall in root package.json auto-runs:
-    #   npm install --prefix server
-    # so server/node_modules is populated before startCommand runs.
+    rootDir: server
     buildCommand: npm install
-    startCommand: node server/src/index.js
+    startCommand: node src/index.js
+    healthCheckPath: /health
     envVars:
       - key: NODE_ENV
         value: production
       - key: MONGODB_URI
-        sync: false          # Set manually in Render dashboard
+        sync: false
       - key: JWT_SECRET
-        sync: false          # Set manually in Render dashboard
+        sync: false
       - key: JWT_EXPIRE
         value: 7d
       - key: CLIENT_URL
@@ -27,13 +23,9 @@ services:
       - key: CLOUDINARY_API_KEY
         value: "633921147819551"
       - key: CLOUDINARY_API_SECRET
-        sync: false          # Set manually in Render dashboard
+        sync: false
 
-  # ─────────────────────────────────────────────────────────
-  # FRONTEND — Vite/React static site (deployed to Render CDN)
-  # This is separate from the Vercel deployment.
-  # VITE_API_URL must match the backend service URL above.
-  # ─────────────────────────────────────────────────────────
+  # ── Frontend static site ───────────────────────────────────
   - type: web
     name: dellcraft-web
     runtime: static
