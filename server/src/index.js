@@ -2,9 +2,11 @@ import { fileURLToPath } from 'url';
 import { dirname, join }  from 'path';
 import dotenv             from 'dotenv';
 
-// Load .env relative to this file — works regardless of CWD
-// In production (Render) the file won't exist; env vars come from the dashboard
-dotenv.config({ path: join(dirname(fileURLToPath(import.meta.url)), '../../.env') });
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+// Try server/.env first (local dev with rootDir=server), then ../../.env (repo root)
+dotenv.config({ path: join(__dirname, '../..', '.env') });
+dotenv.config({ path: join(__dirname, '../../..', '.env') });
 
 import express    from 'express';
 import cors       from 'cors';
@@ -38,7 +40,7 @@ if (process.env.CLIENT_URL) ALLOWED_ORIGINS.push(process.env.CLIENT_URL);
 
 const corsOptions = {
   origin(origin, cb) {
-    if (!origin) return cb(null, true); // curl / Render health checks
+    if (!origin) return cb(null, true);
     const ok = ALLOWED_ORIGINS.some(o =>
       typeof o === 'string' ? o === origin : o.test(origin)
     );
@@ -51,14 +53,14 @@ const corsOptions = {
   optionsSuccessStatus: 200,
 };
 
-app.options('*', cors(corsOptions)); // preflight — MUST be first
+app.options('*', cors(corsOptions));
 app.use(cors(corsOptions));
 
 // ── Body parsing ──────────────────────────────────────────────
 app.use(express.json({ limit: '2mb' }));
 app.use(express.urlencoded({ extended: true, limit: '2mb' }));
 
-// ── Health & root ─────────────────────────────────────────────
+// ── Health ────────────────────────────────────────────────────
 app.get('/health', (_req, res) => {
   res.json({
     status:    'ok',
@@ -89,7 +91,6 @@ app.use((req, res) => {
   res.status(404).json({ message: `Not found: ${req.method} ${req.path}` });
 });
 
-// ── Error handler ─────────────────────────────────────────────
 app.use(errorHandler);
 
 // ── Start ─────────────────────────────────────────────────────
@@ -98,6 +99,8 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`[server] listening on port ${PORT}`);
   console.log(`[server] NODE_ENV=${process.env.NODE_ENV || 'development'}`);
+  console.log(`[server] MONGODB_URI=${process.env.MONGODB_URI ? 'set' : 'NOT SET'}`);
+  console.log(`[server] JWT_SECRET=${process.env.JWT_SECRET ? 'set' : 'NOT SET'}`);
   console.log(`[server] CLIENT_URL=${process.env.CLIENT_URL || '(not set)'}`);
 });
 
