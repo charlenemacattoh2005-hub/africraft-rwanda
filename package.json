@@ -3,10 +3,10 @@
   "private": true,
   "version": "0.1.0",
   "description": "AfriCraft Rwanda - Multi-vendor e-commerce MERN stack application",
-  "type": "commonjs",
   "scripts": {
     "start":        "node server/src/index.js",
     "build":        "npm install --prefix server",
+    "postinstall":  "npm install --prefix server",
     "dev":          "concurrently \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
     "dev:client":   "npm run dev --prefix client",
     "dev:server":   "npm run dev --prefix server",
