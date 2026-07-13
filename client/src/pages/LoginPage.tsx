@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { login } from '../services/auth';
 import { getAuthPayload } from '../services/api';
+
+const API_BASE = (import.meta.env.VITE_API_URL as string) || 'http://localhost:5000';
 
 export default function LoginPage() {
   const navigate  = useNavigate();
@@ -10,6 +12,25 @@ export default function LoginPage() {
   const [error,    setError]    = useState<string|null>(null);
   const [loading,  setLoading]  = useState(false);
   const [showPw,   setShowPw]   = useState(false);
+  const [serverReady, setServerReady] = useState<boolean | null>(null);
+
+  // Check server health on mount — gives visual feedback during cold start
+  useEffect(() => {
+    let cancelled = false;
+    const check = () => {
+      fetch(`${API_BASE}/health`, { cache: 'no-store' })
+        .then(r => { if (!cancelled) setServerReady(r.ok); })
+        .catch(() => {
+          if (!cancelled) {
+            setServerReady(false);
+            // Retry every 4 seconds while server is waking up
+            setTimeout(check, 4000);
+          }
+        });
+    };
+    check();
+    return () => { cancelled = true; };
+  }, []);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -78,6 +99,27 @@ export default function LoginPage() {
                 </button>
               </div>
             </div>
+
+            {serverReady === false && (
+              <div style={{
+                padding: '10px 14px', borderRadius: 10, marginBottom: 4,
+                background: '#fffbeb', border: '1px solid #f59e0b',
+                color: '#92400e', fontSize: 12, fontWeight: 600,
+                display: 'flex', alignItems: 'center', gap: 8,
+              }}>
+                <span style={{ animation: 'spin 1s linear infinite', display: 'inline-block' }}>⟳</span>
+                Server is starting up (free tier cold start — usually 20–40s). Please wait…
+              </div>
+            )}
+            {serverReady === true && (
+              <div style={{
+                padding: '8px 14px', borderRadius: 10, marginBottom: 4,
+                background: '#f0fdf4', border: '1px solid #22c55e',
+                color: '#15803d', fontSize: 12, fontWeight: 600,
+              }}>
+                ✓ Server is ready
+              </div>
+            )}
 
             {error && (
               <div className="auth-error">⚠️ {error}</div>
