@@ -16,6 +16,7 @@ import OrdersPage            from './pages/OrdersPage';
 import OrderDetailsPage      from './pages/OrderDetailsPage';
 import OrderConfirmationPage from './pages/OrderConfirmationPage';
 import ProfilePage           from './pages/ProfilePage';
+import CustomerDashboardPage from './pages/CustomerDashboardPage';
 import CategoriesPage        from './pages/CategoriesPage';
 import ContactPage           from './pages/ContactPage';
 import PaymentSimulationPage from './pages/PaymentSimulationPage';
@@ -116,6 +117,7 @@ export default function App() {
       <Route path="/login"              element={<Layout><LoginPage /></Layout>} />
       <Route path="/register"           element={<Layout><RegisterPage /></Layout>} />
       <Route path="/profile"            element={<Layout><ProfilePage /></Layout>} />
+      <Route path="/dashboard"           element={<Layout><CustomerDashboardPage /></Layout>} />
       <Route path="/orders"             element={<Layout><OrdersPage /></Layout>} />
       <Route path="/orders/:id"         element={<Layout><OrderDetailsPage /></Layout>} />
       <Route path="/order-confirmation" element={<Layout><OrderConfirmationPage /></Layout>} />

@@ -126,7 +126,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 <Link to="/wishlist" className="nav-icon-btn hide-sm" aria-label="Wishlist">
                   <span aria-hidden="true">♡</span>
                 </Link>
-                <Link to="/orders"   className="nav-icon-btn hide-sm" aria-label="My orders">
+                <Link to="/dashboard" className="nav-icon-btn hide-sm" aria-label="My orders">
                   <span aria-hidden="true">📦</span>
                 </Link>
                 {dashboardLink && (
@@ -138,7 +138,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                     {dashboardLabel}
                   </Link>
                 )}
-                <Link to="/profile"  className="nav-icon-btn hide-sm" aria-label="My profile">
+                <Link to="/dashboard" className="nav-icon-btn hide-sm" aria-label="My profile">
                   <span aria-hidden="true">👤</span>
                 </Link>
                 <button className="nav-logout hide-sm" onClick={onLogout} aria-label="Sign out">
@@ -194,8 +194,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               ) : (
                 <>
                   <div className="mob-section-label">My Account</div>
-                  <Link to="/profile" className="mob-link">👤 My Profile</Link>
-                  <Link to="/orders"  className="mob-link">📦 My Orders</Link>
+                  <Link to="/dashboard" className="mob-link">👤 My Dashboard</Link>
+                  <Link to="/dashboard" className="mob-link">📦 My Orders</Link>
                   {dashboardLink && (
                     <>
                       <div className="mob-divider"/>

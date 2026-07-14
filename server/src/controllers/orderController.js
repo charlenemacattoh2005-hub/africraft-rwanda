@@ -35,9 +35,10 @@ export async function checkout(req, res, next) {
       subtotal += lineTotal;
       orderItems.push({
         productId: product._id,
-        name: product.name,
+        name:      product.name,
+        imageUrl:  product.imageUrl || '',
         unitPrice,
-        quantity: qty,
+        quantity:  qty,
         lineTotal,
       });
     }
