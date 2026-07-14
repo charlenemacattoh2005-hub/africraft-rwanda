@@ -192,8 +192,11 @@ export async function deleteVendorProduct(req, res, next) {
 export async function getVendorOrders(req, res, next) {
   try {
     const productIds = (await Product.find({ vendor: req.user.userId }).select('_id').lean()).map(p => p._id);
-    const orders = await Order.find({ 'items.productId': { $in: productIds } })
+    const raw = await Order.find({ 'items.productId': { $in: productIds } })
       .sort({ createdAt: -1 }).limit(100).lean();
+    // Hydrate images
+    const imgMap = new Map((await Product.find({ _id: { $in: productIds } }, { _id: 1, imageUrl: 1 }).lean()).map(p => [p._id.toString(), p.imageUrl || '']));
+    const orders = raw.map(o => ({ ...o, items: (o.items || []).map(i => ({ ...i, imageUrl: i.imageUrl || imgMap.get(i.productId?.toString()) || '' })) }));
     return res.json({ orders });
   } catch (err) { return next(err); }
 }
