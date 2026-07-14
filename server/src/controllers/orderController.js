@@ -71,12 +71,28 @@ export async function checkout(req, res, next) {
   }
 }
 
+// Merges live product imageUrl into order items (covers orders placed before imageUrl was saved)
+async function hydrateImages(orders) {
+  const allIds = [...new Set(orders.flatMap(o => o.items.map(i => i.productId?.toString()).filter(Boolean)))];
+  if (!allIds.length) return orders;
+  const products = await Product.find({ _id: { $in: allIds } }, { _id: 1, imageUrl: 1 }).lean();
+  const imgMap = new Map(products.map(p => [p._id.toString(), p.imageUrl || '']));
+  return orders.map(o => ({
+    ...o,
+    items: o.items.map(i => ({
+      ...i,
+      imageUrl: i.imageUrl || imgMap.get(i.productId?.toString()) || '',
+    })),
+  }));
+}
+
 export async function myOrders(req, res, next) {
   try {
     const userId = req.user?.userId;
     if (!userId) return res.status(401).json({ message: 'Unauthorized' });
 
-    const orders = await Order.find({ userId }).sort({ createdAt: -1 }).limit(50);
+    const raw = await Order.find({ userId }).sort({ createdAt: -1 }).limit(50).lean();
+    const orders = await hydrateImages(raw);
     return res.json({ orders });
   } catch (err) {
     return next(err);
@@ -88,12 +104,13 @@ export async function getOrderById(req, res, next) {
     const userId = req.user?.userId;
     const { id } = req.params;
 
-    const order = await Order.findById(id);
-    if (!order) return res.status(404).json({ message: 'Order not found' });
+    const raw = await Order.findById(id).lean();
+    if (!raw) return res.status(404).json({ message: 'Order not found' });
 
-    if (order.userId.toString() !== userId && req.user.role !== 'admin') {
+    if (raw.userId.toString() !== userId && req.user.role !== 'admin') {
       return res.status(403).json({ message: 'Forbidden' });
     }
+    const [order] = await hydrateImages([raw]);
     return res.json({ order });
   } catch (err) {
     return next(err);
@@ -102,7 +119,8 @@ export async function getOrderById(req, res, next) {
 
 export async function listAllOrders(req, res, next) {
   try {
-    const orders = await Order.find().sort({ createdAt: -1 }).limit(200);
+    const raw = await Order.find().sort({ createdAt: -1 }).limit(200).lean();
+    const orders = await hydrateImages(raw);
     return res.json({ orders });
   } catch (err) {
     return next(err);
