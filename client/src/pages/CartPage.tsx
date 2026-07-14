@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { fetchProductById } from '../services/products';
+import { getAuthToken } from '../services/api';
 import { Badge } from '../components/ui';
 
 const CART_KEY = 'africraft_cart_v1';
@@ -153,7 +154,13 @@ export default function CartPage() {
           <button
             className="btn primary"
             style={{ width: '100%', marginTop: 20, padding: '13px' }}
-            onClick={() => navigate('/checkout')}
+            onClick={() => {
+              if (getAuthToken()) {
+                navigate('/checkout');
+              } else {
+                navigate('/login', { state: { from: { pathname: '/checkout' } } });
+              }
+            }}
           >
             Proceed to checkout →
           </button>

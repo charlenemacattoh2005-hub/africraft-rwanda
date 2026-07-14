@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { login } from '../services/auth';
 import { getAuthPayload } from '../services/api';
 import { onServerState, type ServerState } from '../services/warmup';
 
 export default function LoginPage() {
-  const navigate = useNavigate();
+  const navigate  = useNavigate();
+  const location   = useLocation();
+  const from       = (location.state as any)?.from?.pathname || null;
 
   const [email,    setEmail]    = useState('');
   const [password, setPassword] = useState('');
@@ -33,11 +35,14 @@ export default function LoginPage() {
     try {
       await login(email, password);
       const payload = getAuthPayload();
+      // Redirect back to the page that required auth (e.g. /checkout),
+      // otherwise go to the role-appropriate dashboard.
       const dest =
+        from ? from :
         payload?.role === 'admin'  ? '/admin'  :
         payload?.role === 'vendor' ? '/vendor' :
         payload?.role === 'rider'  ? '/rider'  : '/products';
-      navigate(dest);
+      navigate(dest, { replace: true });
     } catch (err: any) {
       const msg: string = err?.message || 'Login failed. Please try again.';
 
@@ -179,8 +184,25 @@ export default function LoginPage() {
 
           <div className="auth-form-header">
             <div className="auth-form-title">Welcome back</div>
-            <p className="auth-form-sub">Sign in to your account</p>
+            <p className="auth-form-sub">
+              {from ? 'Sign in to continue' : 'Sign in to your account'}
+            </p>
           </div>
+
+          {from && (
+            <div style={{
+              padding: '10px 14px',
+              borderRadius: 10,
+              background: 'rgba(194,65,12,.07)',
+              border: '1px solid rgba(194,65,12,.18)',
+              fontSize: 13,
+              color: 'var(--primary)',
+              fontWeight: 600,
+              marginBottom: 4,
+            }}>
+              🔒 Please sign in or create an account to continue to checkout.
+            </div>
+          )}
 
           <form onSubmit={onSubmit} style={{ display: 'grid', gap: 16 }}>
 
@@ -277,7 +299,7 @@ export default function LoginPage() {
 
           <p className="auth-switch">
             Don't have an account?{' '}
-            <Link to="/register">Create one</Link>
+            <Link to="/register" state={from ? { from: { pathname: from } } : undefined}>Create one</Link>
           </p>
 
         </div>

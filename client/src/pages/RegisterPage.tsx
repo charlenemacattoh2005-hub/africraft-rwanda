@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { register } from '../services/auth';
 
 export default function RegisterPage() {
-  const navigate  = useNavigate();
+  const navigate = useNavigate();
+  const location  = useLocation();
+  const from      = (location.state as any)?.from?.pathname || '/products';
   const [fullName, setFullName] = useState('');
   const [email,    setEmail]    = useState('');
   const [password, setPassword] = useState('');
@@ -20,7 +22,7 @@ export default function RegisterPage() {
     setLoading(true); setError(null);
     try {
       await register(fullName, email, password);
-      navigate('/products');
+      navigate(from, { replace: true });
     } catch (err: any) {
       setError(err?.message || 'Registration failed.');
     } finally {
@@ -105,7 +107,7 @@ export default function RegisterPage() {
           </form>
 
           <p className="auth-switch">
-            Already have an account? <Link to="/login">Sign in</Link>
+            Already have an account? <Link to="/login" state={from !== '/products' ? { from: { pathname: from } } : undefined}>Sign in</Link>
           </p>
         </div>
       </div>
