@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Link } from 'react-router-dom';
 import RequireAuth from '../components/RequireAuth';
 import AdminLayout from '../components/AdminLayout';
 import { fetchAdminOrders, updateOrderStatus, addOrderNote } from '../services/admin';
@@ -13,7 +12,7 @@ export default function OrdersAdminPage() {
 }
 
 const ALL_STATUSES = [
-  'all','pending','confirmed','paid','processing','packed',
+  'pending','confirmed','paid','processing','packed',
   'shipped','out_for_delivery','delivered','completed','cancelled','returned','refunded',
 ];
 
@@ -24,14 +23,169 @@ const STATUS_LABELS: Record<string, string> = {
   returned: 'Returned', refunded: 'Refunded',
 };
 
-const STATUS_CLASS: Record<string, string> = {
-  pending: 'status-pending', confirmed: 'status-confirmed', paid: 'status-paid',
-  processing: 'status-processing', packed: 'status-packed', shipped: 'status-shipped',
-  out_for_delivery: 'status-out_for_delivery', delivered: 'status-delivered',
-  completed: 'status-completed', cancelled: 'status-cancelled',
-  returned: 'status-returned', refunded: 'status-refunded',
+const STATUS_META: Record<string, { color: string; bg: string }> = {
+  pending:          { color: '#d97706', bg: '#fffbeb' },
+  confirmed:        { color: '#1d4ed8', bg: '#eff6ff' },
+  paid:             { color: '#15803d', bg: '#f0fdf4' },
+  processing:       { color: '#7c3aed', bg: '#f5f3ff' },
+  packed:           { color: '#b45309', bg: '#fef3c7' },
+  shipped:          { color: '#0891b2', bg: '#ecfeff' },
+  out_for_delivery: { color: '#ea580c', bg: '#fff7ed' },
+  delivered:        { color: '#15803d', bg: '#f0fdf4' },
+  completed:        { color: '#15803d', bg: '#f0fdf4' },
+  cancelled:        { color: '#dc2626', bg: '#fef2f2' },
+  returned:         { color: '#9333ea', bg: '#faf5ff' },
+  refunded:         { color: '#0891b2', bg: '#ecfeff' },
 };
 
+/* ── Order detail drawer ─────────────────────────────────────── */
+function OrderDetailDrawer({ order, onClose, onStatusChange, updating }: {
+  order: any;
+  onClose: () => void;
+  onStatusChange: (id: string, status: string) => void;
+  updating: string | null;
+}) {
+  const meta = STATUS_META[order.status] || { color: '#6b7280', bg: '#f3f4f6' };
+
+  return (
+    <div className="aod-overlay" onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
+      <div className="aod-drawer">
+
+        {/* Header */}
+        <div className="aod-drawer-header">
+          <div>
+            <div className="aod-drawer-title">
+              Order #{String(order._id).slice(-8).toUpperCase()}
+            </div>
+            <div className="aod-drawer-sub">
+              {new Date(order.createdAt).toLocaleDateString('en-RW', {
+                year: 'numeric', month: 'long', day: 'numeric',
+              })}{' '}
+              at {new Date(order.createdAt).toLocaleTimeString('en-RW', {
+                hour: '2-digit', minute: '2-digit',
+              })}
+            </div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <span className="aod-status-badge" style={{ background: meta.bg, color: meta.color, borderColor: meta.color + '40' }}>
+              {STATUS_LABELS[order.status] || order.status}
+            </span>
+            <button className="aod-close-btn" onClick={onClose}>✕</button>
+          </div>
+        </div>
+
+        <div className="aod-drawer-body">
+
+          {/* Status update */}
+          <div className="aod-section">
+            <div className="aod-section-title">Update Status</div>
+            <select
+              className="input"
+              style={{ maxWidth: 260 }}
+              value={order.status}
+              disabled={updating === order._id}
+              onChange={e => onStatusChange(order._id, e.target.value)}
+            >
+              {ALL_STATUSES.map(s => (
+                <option key={s} value={s}>{STATUS_LABELS[s]}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Items with images */}
+          <div className="aod-section">
+            <div className="aod-section-title">
+              Items Ordered
+              <span className="aod-pill">{order.items?.length || 0}</span>
+            </div>
+            <div className="aod-items">
+              {(order.items || []).map((item: any, idx: number) => (
+                <div key={idx} className="aod-item-row">
+                  <div className="aod-item-img">
+                    {item.imageUrl
+                      ? <img src={item.imageUrl} alt={item.name} />
+                      : <span>🛍️</span>}
+                  </div>
+                  <div className="aod-item-info">
+                    <div className="aod-item-name">{item.name}</div>
+                    <div className="aod-item-meta">
+                      Qty: <strong>{item.quantity}</strong>
+                      &nbsp;·&nbsp;
+                      Unit: <strong>RWF {Number(item.unitPrice).toLocaleString()}</strong>
+                    </div>
+                  </div>
+                  <div className="aod-item-total">
+                    RWF {Number(item.lineTotal).toLocaleString()}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Two-column: delivery + summary */}
+          <div className="aod-two-col">
+
+            {/* Delivery info */}
+            <div className="aod-section">
+              <div className="aod-section-title">Delivery Information</div>
+              <div className="aod-info-grid">
+                {[
+                  ['Full Name',  order.customer?.fullName],
+                  ['Phone',      order.customer?.phone],
+                  ['Email',      order.customer?.email],
+                  ['District',   order.customer?.district],
+                  ['Sector',     order.customer?.sector],
+                  ['Address',    order.customer?.address],
+                  ['Payment',    order.customer?.paymentMethod || order.paymentMethod],
+                ].map(([label, value]) => value ? (
+                  <div key={label} className="aod-info-row">
+                    <span className="aod-info-label">{label}</span>
+                    <span className="aod-info-value">{value}</span>
+                  </div>
+                ) : null)}
+                {order.customer?.deliveryNotes && (
+                  <div className="aod-info-row aod-info-full">
+                    <span className="aod-info-label">Notes</span>
+                    <span className="aod-info-value">{order.customer.deliveryNotes}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Order summary */}
+            <div className="aod-section">
+              <div className="aod-section-title">Order Summary</div>
+              <div className="aod-summary">
+                <div className="aod-summary-row">
+                  <span>Subtotal</span>
+                  <span>RWF {Number(order.subtotal || 0).toLocaleString()}</span>
+                </div>
+                <div className="aod-summary-row">
+                  <span>Delivery fee</span>
+                  <span>{Number(order.deliveryFee || 0) === 0 ? 'Free' : `RWF ${Number(order.deliveryFee).toLocaleString()}`}</span>
+                </div>
+                <div className="aod-summary-row aod-summary-total">
+                  <span>Total</span>
+                  <span>RWF {Number(order.total).toLocaleString()}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Admin note */}
+          {order.adminNote && (
+            <div className="aod-section">
+              <div className="aod-section-title">Admin Note</div>
+              <div className="aod-note-box">{order.adminNote}</div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── Note modal ──────────────────────────────────────────────── */
 function NoteModal({ order, onSave, onClose }: { order: any; onSave: (note: string) => void; onClose: () => void }) {
   const [note, setNote] = useState(order.adminNote || '');
   return (
@@ -55,60 +209,17 @@ function NoteModal({ order, onSave, onClose }: { order: any; onSave: (note: stri
   );
 }
 
-function TimelineModal({ order, onClose }: { order: any; onClose: () => void }) {
-  const timeline = order.timeline || [];
-  return (
-    <div className="admin-modal-overlay" onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
-      <div className="admin-modal" style={{ maxWidth: 520 }}>
-        <div className="admin-modal-header">
-          <div className="admin-modal-title">Order Timeline — #{String(order._id).slice(-6).toUpperCase()}</div>
-          <button className="admin-modal-close" onClick={onClose}>✕</button>
-        </div>
-        <div style={{ padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: 0 }}>
-          {timeline.length === 0 && (
-            <p style={{ color: '#a8a29e', fontSize: 13 }}>No timeline events yet. Update the order status to begin.</p>
-          )}
-          {[{ status: 'pending', note: 'Order created', by: 'system', at: order.createdAt }, ...timeline].map((ev: any, i: number) => (
-            <div key={i} style={{ display: 'flex', gap: 14, paddingBottom: 18, position: 'relative' }}>
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0 }}>
-                <div style={{
-                  width: 12, height: 12, borderRadius: '50%', background: '#c2410c',
-                  border: '2px solid #fff', boxShadow: '0 0 0 2px #c2410c', zIndex: 1,
-                }} />
-                {i < timeline.length && (
-                  <div style={{ width: 2, flex: 1, background: 'rgba(194,65,12,.15)', minHeight: 24 }} />
-                )}
-              </div>
-              <div style={{ paddingTop: 0 }}>
-                <span className={`status-badge ${STATUS_CLASS[ev.status] || 'status-pending'}`} style={{ marginBottom: 4, display: 'inline-flex' }}>
-                  {STATUS_LABELS[ev.status] || ev.status}
-                </span>
-                {ev.note && <div style={{ fontSize: 12, color: '#1c1917', marginTop: 3 }}>{ev.note}</div>}
-                <div style={{ fontSize: 11, color: '#a8a29e', marginTop: 2 }}>
-                  {ev.by || 'system'} · {ev.at ? new Date(ev.at).toLocaleString() : ''}
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-        <div className="admin-modal-footer">
-          <button className="btn" onClick={onClose}>Close</button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
+/* ── Main inner component ────────────────────────────────────── */
 function Inner() {
-  const [orders,    setOrders]    = useState<any[]>([]);
-  const [loading,   setLoading]   = useState(true);
-  const [error,     setError]     = useState<string | null>(null);
-  const [search,    setSearch]    = useState('');
+  const [orders,       setOrders]       = useState<any[]>([]);
+  const [loading,      setLoading]      = useState(true);
+  const [error,        setError]        = useState<string | null>(null);
+  const [search,       setSearch]       = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
-  const [updating,  setUpdating]  = useState<string | null>(null);
-  const [noteOrder, setNoteOrder] = useState<any>(null);
-  const [tlOrder,   setTlOrder]   = useState<any>(null);
-  const [toast,     setToast]     = useState<{ msg: string; type: 'success' | 'error' } | null>(null);
+  const [updating,     setUpdating]     = useState<string | null>(null);
+  const [selected,     setSelected]     = useState<any>(null);
+  const [noteOrder,    setNoteOrder]    = useState<any>(null);
+  const [toast,        setToast]        = useState<{ msg: string; type: 'success' | 'error' } | null>(null);
 
   const load = useCallback(() => {
     setLoading(true);
@@ -134,7 +245,9 @@ function Inner() {
       const res = await updateOrderStatus(id, status);
       if (res.order) {
         setOrders(prev => prev.map(o => o._id === id ? res.order : o));
-        showToast(`Order updated to ${status}`);
+        // keep drawer in sync
+        setSelected((prev: any) => prev?._id === id ? res.order : prev);
+        showToast(`Status updated to ${STATUS_LABELS[status] || status}`);
       }
     } catch (e: any) { showToast(e?.message || 'Failed', 'error'); }
     finally { setUpdating(null); }
@@ -144,7 +257,10 @@ function Inner() {
     if (!noteOrder) return;
     try {
       const res = await addOrderNote(noteOrder._id, note);
-      if (res.order) { setOrders(prev => prev.map(o => o._id === noteOrder._id ? res.order : o)); }
+      if (res.order) {
+        setOrders(prev => prev.map(o => o._id === noteOrder._id ? res.order : o));
+        setSelected((prev: any) => prev?._id === noteOrder._id ? res.order : prev);
+      }
       setNoteOrder(null);
       showToast('Note saved');
     } catch (e: any) { showToast(e?.message || 'Failed', 'error'); }
@@ -156,9 +272,20 @@ function Inner() {
   return (
     <>
       <div className="accent-bar" />
-      {toast && <div className={`admin-toast ${toast.type}`}>{toast.type === 'success' ? '✅' : '❌'} {toast.msg}</div>}
+      {toast && (
+        <div className={`admin-toast ${toast.type}`}>
+          {toast.type === 'success' ? '✅' : '❌'} {toast.msg}
+        </div>
+      )}
       {noteOrder && <NoteModal order={noteOrder} onSave={onSaveNote} onClose={() => setNoteOrder(null)} />}
-      {tlOrder   && <TimelineModal order={tlOrder} onClose={() => setTlOrder(null)} />}
+      {selected  && (
+        <OrderDetailDrawer
+          order={selected}
+          onClose={() => setSelected(null)}
+          onStatusChange={onStatusChange}
+          updating={updating}
+        />
+      )}
 
       <div className="admin-page-header">
         <div>
@@ -168,20 +295,21 @@ function Inner() {
       </div>
 
       {/* Status filter tabs */}
-      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 20, overflowX: 'auto', paddingBottom: 4 }}>
-        {['all','pending','confirmed','processing','shipped','delivered','cancelled'].map(s => (
-          <button key={s}
-            onClick={() => setStatusFilter(s)}
-            style={{
+      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 20, paddingBottom: 4 }}>
+        {['all','pending','confirmed','processing','shipped','delivered','cancelled'].map(s => {
+          const active = statusFilter === s;
+          return (
+            <button key={s} onClick={() => setStatusFilter(s)} style={{
               padding: '6px 14px', borderRadius: 10, fontSize: 12, fontWeight: 700, cursor: 'pointer',
-              border: `1px solid ${statusFilter === s ? '#c2410c' : 'rgba(194,65,12,.15)'}`,
-              background: statusFilter === s ? '#c2410c' : '#fff',
-              color: statusFilter === s ? '#fff' : '#78716c',
+              border: `1px solid ${active ? '#c2410c' : 'rgba(194,65,12,.15)'}`,
+              background: active ? '#c2410c' : '#fff',
+              color: active ? '#fff' : '#78716c',
               whiteSpace: 'nowrap',
             }}>
-            {s === 'all' ? 'All' : STATUS_LABELS[s]} {counts[s] ? `(${counts[s]})` : ''}
-          </button>
-        ))}
+              {s === 'all' ? 'All' : STATUS_LABELS[s]}{counts[s] ? ` (${counts[s]})` : ''}
+            </button>
+          );
+        })}
       </div>
 
       <div className="admin-toolbar">
@@ -199,56 +327,92 @@ function Inner() {
           <table className="dash-table">
             <thead>
               <tr>
-                <th>Order</th><th>Customer</th><th>Items</th>
-                <th>Total</th><th>Status</th><th>Date</th><th>Actions</th>
+                <th>Order</th>
+                <th>Customer</th>
+                <th>Items</th>
+                <th>Total</th>
+                <th>Status</th>
+                <th>Date</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
               {orders.length === 0 && (
                 <tr><td colSpan={7} className="dash-table-empty">No orders found.</td></tr>
               )}
-              {orders.map(o => (
-                <tr key={o._id}>
-                  <td>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-                      <span className="admin-order-id-cell">#{String(o._id).slice(-8).toUpperCase()}</span>
-                      {o.adminNote && (
-                        <span style={{ fontSize: 10, color: '#d97706', background: '#fffbeb', padding: '1px 6px', borderRadius: 4 }}>
-                          📝 Has note
+              {orders.map(o => {
+                const meta = STATUS_META[o.status] || { color: '#6b7280', bg: '#f3f4f6' };
+                return (
+                  <tr key={o._id} style={{ cursor: 'pointer' }} onClick={() => setSelected(o)}>
+                    <td>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                        <span style={{ fontFamily: 'monospace', fontWeight: 800, fontSize: 13 }}>
+                          #{String(o._id).slice(-8).toUpperCase()}
                         </span>
-                      )}
-                    </div>
-                  </td>
-                  <td>
-                    <div className="admin-customer-cell">
-                      <div className="admin-customer-name">{o.customer?.fullName || '—'}</div>
-                      <div className="admin-customer-email">{o.customer?.email || ''}</div>
-                      {o.customer?.phone && <div className="admin-customer-email">{o.customer.phone}</div>}
-                    </div>
-                  </td>
-                  <td><span className="admin-items-badge">{o.items?.length || 0}</span></td>
-                  <td className="admin-price-cell">RWF {Number(o.total).toLocaleString()}</td>
-                  <td>
-                    <select className="admin-status-select"
-                      value={o.status}
-                      disabled={updating === o._id}
-                      onChange={e => onStatusChange(o._id, e.target.value)}>
-                      {ALL_STATUSES.filter(s => s !== 'all').map(s => (
-                        <option key={s} value={s}>{STATUS_LABELS[s]}</option>
-                      ))}
-                    </select>
-                  </td>
-                  <td style={{ fontSize: 12, color: '#78716c' }}>
-                    {o.createdAt ? new Date(o.createdAt).toLocaleDateString() : '—'}
-                  </td>
-                  <td>
-                    <div className="admin-action-btns">
-                      <button className="admin-btn-edit" onClick={() => setTlOrder(o)} title="View timeline">📋</button>
-                      <button className="admin-btn-view" onClick={() => setNoteOrder(o)} title="Add note">📝</button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+                        {o.adminNote && (
+                          <span style={{ fontSize: 10, color: '#d97706', background: '#fffbeb', padding: '1px 6px', borderRadius: 4, width: 'fit-content' }}>
+                            📝 Has note
+                          </span>
+                        )}
+                      </div>
+                    </td>
+                    <td>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                        <span style={{ fontWeight: 700, fontSize: 13 }}>{o.customer?.fullName || '—'}</span>
+                        <span style={{ fontSize: 11, color: '#78716c' }}>{o.customer?.email || ''}</span>
+                        {o.customer?.phone && <span style={{ fontSize: 11, color: '#78716c' }}>{o.customer.phone}</span>}
+                      </div>
+                    </td>
+                    {/* Item thumbnails */}
+                    <td onClick={e => e.stopPropagation()}>
+                      <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+                        {(o.items || []).slice(0, 3).map((item: any, idx: number) => (
+                          <div key={idx} style={{
+                            width: 36, height: 36, borderRadius: 7,
+                            border: '1px solid #e5e7eb', overflow: 'hidden',
+                            background: '#f5f5f4', flexShrink: 0,
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            fontSize: 14,
+                          }}>
+                            {item.imageUrl
+                              ? <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                              : '🛍️'}
+                          </div>
+                        ))}
+                        {(o.items?.length || 0) > 3 && (
+                          <span style={{ fontSize: 11, color: '#78716c', fontWeight: 700 }}>
+                            +{o.items.length - 3}
+                          </span>
+                        )}
+                      </div>
+                    </td>
+                    <td style={{ fontWeight: 800, color: '#c2410c', fontSize: 13 }}>
+                      RWF {Number(o.total).toLocaleString()}
+                    </td>
+                    <td onClick={e => e.stopPropagation()}>
+                      <select
+                        className="admin-status-select"
+                        value={o.status}
+                        disabled={updating === o._id}
+                        onChange={e => onStatusChange(o._id, e.target.value)}
+                      >
+                        {ALL_STATUSES.map(s => (
+                          <option key={s} value={s}>{STATUS_LABELS[s]}</option>
+                        ))}
+                      </select>
+                    </td>
+                    <td style={{ fontSize: 12, color: '#78716c' }}>
+                      {o.createdAt ? new Date(o.createdAt).toLocaleDateString() : '—'}
+                    </td>
+                    <td onClick={e => e.stopPropagation()}>
+                      <div className="admin-action-btns">
+                        <button className="admin-btn-view" title="View details" onClick={() => setSelected(o)}>👁️</button>
+                        <button className="admin-btn-edit" title="Add note" onClick={() => setNoteOrder(o)}>📝</button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
