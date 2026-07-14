@@ -40,7 +40,7 @@ export default function RegisterPage() {
         <div className="auth-left-inner">
           <div className="auth-brand">
             <div className="auth-brand-logo">🛒</div>
-            <span>DellCraft Rwanda</span>
+            <span>AfriCraft Rwanda</span>
           </div>
           <div className="auth-left-title">Start shopping authentic Rwandan crafts today.</div>
           <p className="auth-left-sub">Create your free account and explore hundreds of handmade products from local artisans.</p>
@@ -56,7 +56,7 @@ export default function RegisterPage() {
         <div className="auth-form-card">
           <div className="auth-form-header">
             <div className="auth-form-title">Create account</div>
-            <p className="auth-form-sub">Join the DellCraft community</p>
+            <p className="auth-form-sub">Join the AfriCraft community</p>
           </div>
 
           <form onSubmit={onSubmit} style={{ display:'grid', gap:14 }}>

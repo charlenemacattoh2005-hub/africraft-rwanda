@@ -269,34 +269,6 @@ export default function LoginPage() {
 
           </form>
 
-          <div className="auth-divider"><span>or</span></div>
-
-          {/* Demo credentials */}
-          <div className="auth-demo-box">
-            <div className="auth-demo-title">Demo credentials</div>
-            <div style={{ display: 'grid', gap: 8, marginTop: 8 }}>
-              {[
-                { icon: '👑', label: 'Admin',    email: 'admin@dellcraft.rw'    },
-                { icon: '🏪', label: 'Vendor',   email: 'vendor@dellcraft.rw'   },
-                { icon: '🛵', label: 'Rider',    email: 'rider@dellcraft.rw'    },
-                { icon: '👤', label: 'Customer', email: 'customer@dellcraft.rw' },
-              ].map(u => (
-                <button
-                  key={u.email}
-                  className="auth-demo-btn"
-                  type="button"
-                  onClick={() => {
-                    setEmail(u.email);
-                    setPassword('Admin@2026!');
-                    setError(null);
-                  }}
-                >
-                  {u.icon} {u.label} — {u.email}
-                </button>
-              ))}
-            </div>
-          </div>
-
           <p className="auth-switch">
             Don't have an account?{' '}
             <Link to="/register" state={from ? { from: { pathname: from } } : undefined}>Create one</Link>
