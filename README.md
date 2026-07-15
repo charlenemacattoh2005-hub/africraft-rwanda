@@ -1,10 +1,33 @@
-﻿# AfriCraft Rwanda — E-Commerce Web Application
+# AfriCraft Rwanda — E-Commerce Web Application
 
-**Course:** EWA408510 – E-Commerce and Web Application
-**Instructor:** Eric Maniraguha
+---
+
+<div align="center">
+
+**University of Lay Adventists of Kigali (UNILAK)**
+Kigali, Gasabo | Street KK 508 ST | P.O Box 6392 Kigali, Rwanda
++250 791 591 773 | info@unilak.ac.rw
+
+**Faculty of Computing and Information Sciences**
+
+---
+
+| Item | Details |
+|------|---------|
+| **Course Code & Name** | EWA408510 – E-Commerce and Web Application |
+| **Instructor** | Eric Maniraguha |
+| **Assessment Type** | Individual Project |
+| **Duration** | 13 Days |
+| **Submission Period** | 21 June – 3 July 2026 |
+| **Maximum Marks** | 40 Marks (+5 Bonus Marks) |
+
+---
+
+**Student:** Charlene Macattoh
+**Institution:** Rwanda Coding Academy
 **Academic Year:** 2025–2026
-**Assessment:** Individual Project (40 Marks + 5 Bonus)
-**Submission Period:** 21 June – 3 July 2026
+
+</div>
 
 ---
 
@@ -19,13 +42,26 @@
 
 ---
 
+## Demo Credentials
+
+| Role | Email | Password |
+|------|-------|----------|
+| Admin | admin@dellcraft.rw | Admin@2026! |
+| Vendor | vendor@dellcraft.rw | Admin@2026! |
+| Rider | rider@dellcraft.rw | Admin@2026! |
+| Customer | customer@dellcraft.rw | Admin@2026! |
+
+> **Note:** The backend is hosted on Render's free tier. The first request after inactivity may take 20–60 seconds (cold start). The login page shows a server status indicator while the backend wakes up.
+
+---
+
 ## Project Report
 
 ### 1. Introduction
 
 AfriCraft Rwanda is a full-stack, multi-vendor e-commerce web application designed to connect Rwandan artisans with customers locally and globally. The platform enables artisans to list and manage handcrafted products while customers can browse, search, add items to a cart, and place orders seamlessly.
 
-The application was built as the final project for EWA408510 – E-Commerce and Web Application at Rwanda Coding Academy. It demonstrates practical application of modern web development, DevOps practices, database design, and cloud deployment.
+The application was built as the final project for **EWA408510 – E-Commerce and Web Application** at Rwanda Coding Academy. It demonstrates practical application of modern web development, DevOps practices, database design, and cloud deployment.
 
 The business domain chosen is a **Handicraft Marketplace** — a platform where vendors sell authentic Rwandan crafts including baskets, pottery, jewelry, wood carvings, paintings, and more.
 
@@ -73,37 +109,30 @@ There is a clear need for a dedicated, professional e-commerce platform that:
 
 #### Vendor Features
 - Vendor dashboard with KPIs: revenue, orders, products, earnings
-- Add, edit, and delete products with Cloudinary image upload
+- Add, edit, and delete products with image upload
 - View and track orders for their products
 - Real-time payout calculation with configurable platform fee
 - Store profile management
 
 #### Admin Features
 - Full admin dashboard with analytics, revenue charts, activity feed
-- Product management: create, edit, delete, bulk actions, assign to vendors
-- Order management: status pipeline (12 statuses), timeline, notes, rider assignment
-- User management: create, suspend, activate, assign roles
-- Category management with image upload
-- Inventory management with stock alerts
-- Coupon and discount management (MongoDB-backed)
-- Notification system with real-time alerts
+- Product management: create, edit, delete, bulk actions, categories
+- Order management: status pipeline, timeline, notes
+- User/customer management with profile and order history
+- Category management
+- Inventory management with stock alerts and adjustments
+- Discount and coupon management
+- Notification system with activity log
 - Analytics page with revenue charts and category performance
-- Site content CMS: announcement bar, hero text, platform settings
-
-#### Rider Features
-- Rider dashboard with assigned deliveries
-- Accept and advance delivery status (shipped → out for delivery → delivered)
-- Earnings summary based on configurable per-delivery rate
-- Delivery history
+- Site settings CMS: announcement bar, branding, feature flags
 
 #### Platform Features
 - Role-based access control: Admin, Vendor, Rider, Customer
 - JWT authentication with bcrypt password hashing
-- Cloudinary image upload (no URL text boxes — file upload only)
 - CORS configured for Vercel + localhost origins
 - Input validation on all forms (client and server)
 - Professional error handling with user-friendly messages
-- Retry logic on API calls (5 attempts with exponential backoff)
+- Retry logic on API calls with exponential backoff
 - Server warm-up detection for Render free-tier cold starts
 
 ---
@@ -127,7 +156,6 @@ There is a clear need for a dedicated, professional e-commerce platform that:
 | bcrypt | Password hashing |
 | cors | Cross-origin resource sharing |
 | dotenv | Environment variable management |
-| Cloudinary + Multer | Image upload and storage |
 | express-validator | Server-side input validation |
 
 #### Database
@@ -190,9 +218,9 @@ There is a clear need for a dedicated, professional e-commerce platform that:
 ```
 
 **Key architectural decisions:**
-- Frontend and backend are fully decoupled (separate repos/deploys)
-- All admin/vendor/rider routes render outside the public Layout component to prevent duplicate sidebar rendering
-- API client (`api.ts`) is centralised — all 60+ service functions use one retry/timeout/error handler
+- Frontend and backend are fully decoupled (separate deploys)
+- All admin/vendor/rider routes render outside the public Layout component
+- API client (`api.ts`) is centralised — all service functions use one retry/timeout/error handler
 - Server starts and binds port BEFORE connecting to MongoDB so Render health checks pass
 
 ---
@@ -217,9 +245,8 @@ badge, featured, variants[], vendor (ref: User), timestamps
 #### Orders
 ```
 _id, userId (ref: User), customer{fullName,phone,email,address,paymentMethod},
-status (12-state enum), items[{productId,name,qty,price,lineTotal}],
-subtotal, deliveryFee, total, riderId (ref: User),
-timeline[{status,note,by,at}], adminNote, trackingNumber, timestamps
+status (enum), items[{productId,name,qty,price,lineTotal}],
+subtotal, deliveryFee, total, timestamps
 ```
 
 #### Categories
@@ -249,13 +276,6 @@ _id, code (unique), type (percentage|fixed), value, minOrder,
 maxUses, uses, startDate, endDate, isActive, description, timestamps
 ```
 
-#### SiteContent (Singleton CMS)
-```
-_id, key="main", heroTitle, heroSubtitle, heroImageUrl, heroBanners[],
-platformFeePercent, riderEarningsPerDelivery, announcementBar,
-contactEmail, contactPhone, timestamps
-```
-
 **Entity Relationships:**
 - User (1) → Orders (many)
 - User (Vendor) → Products (many)
@@ -269,25 +289,57 @@ contactEmail, contactPhone, timestamps
 
 ### 8. Screenshots of the Application
 
-Screenshots are located in the `docs/screenshots/` directory and include:
+#### Homepage
+![Homepage](docs/images/homePage.png)
+*AfriCraft Rwanda homepage — hero banner, featured categories, new arrivals, and main navigation*
 
-| Screen | Description |
-|---|---|
-| Homepage | Hero section, categories, featured products |
-| Products Page | Grid layout, filters, search |
-| Product Detail | Images, description, add to cart, reviews |
-| Shopping Cart | Items, quantities, totals |
-| Checkout | Customer form, order summary, validation |
-| Order Confirmation | Success state, order ID |
-| Login / Register | Auth forms with demo credentials |
-| Admin Dashboard | KPI cards, revenue chart, activity feed |
-| Admin Products | Table with bulk actions, Cloudinary upload |
-| Admin Orders | Status pipeline, timeline, notes |
-| Admin Users | Role management, suspend/activate |
-| Vendor Dashboard | KPIs, products, orders, analytics |
-| Rider Dashboard | Delivery cards, advance status, earnings |
+---
 
-> To generate screenshots: run the app locally (`npm run dev`) and capture each screen.
+#### Shopping Cart
+![Shopping Cart](docs/images/CartPage.png)
+*Shopping cart — product items, quantity controls, price breakdown, and checkout button*
+
+---
+
+#### Categories Page
+![Categories](docs/images/categloryPage.png)
+*Product categories — browse all craft types with image cards and descriptions*
+
+---
+
+#### Admin Dashboard
+![Admin Dashboard](docs/images/Admin%20Dashboard.png)
+*Admin dashboard — KPI cards (revenue, orders, customers, products), revenue bar chart, top products, low-stock alerts, and activity feed*
+
+---
+
+#### Admin Products Page
+![Admin Products](docs/images/Admin%20product%20page.png)
+*Admin product management — full table with bulk actions, Cloudinary image upload, category filter, and status management*
+
+---
+
+#### Customer Dashboard
+![Customer Dashboard](docs/images/customerdashboard.png)
+*Customer account dashboard — order history, profile management, and account settings*
+
+---
+
+#### Vendor Dashboard
+![Vendor Dashboard](docs/images/vendorDashboard.png)
+*Vendor dashboard — real earnings KPIs, product listings with edit/delete, order tracking, and analytics breakdown*
+
+---
+
+#### GitHub Actions CI/CD Workflow
+![CI/CD Workflow](docs/images/GithubWOrkflow.png)
+*GitHub Actions pipeline — automated build, test, and Docker verification on every push to main*
+
+---
+
+#### Docker Engine — All Services Running
+![Docker](docs/images/DockerEngine.png)
+*Docker Desktop showing all three services running: web (Nginx on 8080), api (Express on 5000), mongo (MongoDB on 27017)*
 
 ---
 
@@ -296,7 +348,7 @@ Screenshots are located in the `docs/screenshots/` directory and include:
 **Repository:** https://github.com/charlenemacattoh2005-hub/africraft-rwanda
 
 The repository includes:
-- Meaningful commit history (80+ commits) documenting every major feature
+- Meaningful commit history (90+ commits) documenting every major feature
 - Proper project structure with `client/`, `server/`, `.github/`, `docs/`
 - Complete `README.md` (this file)
 - `.github/workflows/ci-cd.yml` for automated CI/CD
@@ -313,16 +365,7 @@ The repository includes:
 | Backend API | https://dellcraft-api.onrender.com | Render |
 | Health Check | https://dellcraft-api.onrender.com/health | Render |
 
-**Demo Credentials:**
-
-| Role | Email | Password |
-|---|---|---|
-| Admin | admin@dellcraft.rw | Admin@2026! |
-| Vendor | vendor@dellcraft.rw | Admin@2026! |
-| Rider | rider@dellcraft.rw | Admin@2026! |
-| Customer | customer@dellcraft.rw | Admin@2026! |
-
-> Note: The backend is hosted on Render's free tier. The first request after inactivity may take 20–60 seconds to respond (cold start). The login page shows a server status indicator while the backend wakes up.
+Vercel and Render auto-deploy on every push to `main` via GitHub integration, providing continuous deployment without manual intervention.
 
 ---
 
@@ -362,11 +405,12 @@ Every successful push to `main` triggers:
 1. ✅ Code checkout
 2. ✅ Node.js 20 environment setup
 3. ✅ Dependency installation (root + client + server)
-4. ✅ Frontend build (`vite build` — 95 modules)
+4. ✅ Frontend build (`vite build` — 88+ modules)
 5. ✅ Backend tests
 6. ✅ Docker build verification
 
-Vercel and Render auto-deploy on push to `main` via GitHub integration, providing continuous deployment without manual intervention.
+![CI/CD Workflow](docs/images/GithubWOrkflow.png)
+*Screenshot: GitHub Actions showing all pipeline steps passing — checkout, install, build, test, Docker*
 
 ---
 
@@ -399,8 +443,6 @@ volumes:
 ```bash
 # Build and start all services
 npm run docker:up
-# or
-docker-compose up --build -d
 
 # Services available:
 # Web app:   http://localhost:8080
@@ -442,20 +484,22 @@ EXPOSE 5000
 CMD ["node", "src/index.js"]
 ```
 
+![Docker Engine](docs/images/DockerEngine.png)
+*Screenshot: Docker Desktop showing web, api, and mongo containers all running successfully*
+
 ---
 
 ### 13. Challenges Encountered
 
 | Challenge | Solution Applied |
 |---|---|
-| **Render free-tier cold starts** causing "Failed to fetch" on first load | Added server warm-up service (`warmup.ts`) that pings `/health` on startup with exponential backoff. Login page shows server status indicator. |
-| **CORS errors** from Vercel to Render | Replaced `origin: true` with an explicit allowlist. Changed origin callback from `callback(new Error())` to `callback(null, false)` to prevent CORS headers being stripped from error responses. |
+| **Render free-tier cold starts** causing "Failed to fetch" on first load | Added server warm-up logic that pings `/health` on startup with exponential backoff. Login page shows server status indicator. |
+| **CORS errors** from Vercel to Render | Replaced `origin: true` with an explicit allowlist. Changed origin callback to `callback(null, false)` to prevent CORS headers being stripped from error responses. |
 | **Duplicate admin layout** — public nav appearing over admin sidebar | Restructured `App.tsx` so all admin/vendor/rider routes render outside the public `<Layout>` wrapper. |
-| **Render deployment** root directory mismatch (`backend` vs `server`) | Added `render.yaml` with explicit `rootDir: server`, `buildCommand`, `startCommand`, and `healthCheckPath`. Added `postinstall` to root `package.json`. |
-| **Cloudinary upload** — `multer-storage-cloudinary` SSL error on Windows | Replaced with `multer.memoryStorage()` + `cloudinary.uploader.upload_stream()` — no extra package needed. |
-| **Vendor dashboard payout** using hardcoded 85% | Wired `fetchVendorPayout()` to the `SiteContent` model which stores the configurable `platformFeePercent`. |
+| **Render deployment** root directory mismatch (`backend` vs `server`) | Added `render.yaml` with explicit `rootDir: server`, `buildCommand`, `startCommand`, and `healthCheckPath`. |
 | **MongoDB Atlas IP whitelist** blocking Render | Set Atlas network access to `0.0.0.0/0` to allow Render's dynamic IPs. |
-| **TypeScript errors** in production build | Fixed all type errors: removed duplicate `safeId` function, typed nav items with `badge?` optional, removed unused imports. |
+| **TypeScript errors** in production build | Fixed all type errors: removed duplicate functions, typed optional fields, removed unused imports. |
+| **Admin dashboard missing features** | Built full admin system: inventory management, order timeline drawer, customer profiles, discount codes, notifications, analytics charts, and site settings. |
 
 ---
 
@@ -468,9 +512,9 @@ CMD ["node", "src/index.js"]
 5. **Advanced Analytics** — Extend the analytics dashboard with heat maps, conversion funnels, and revenue forecasts
 6. **Multi-Language Support** — Add Kinyarwanda and French translations using i18n
 7. **Customer Loyalty Programme** — Points system rewarding repeat purchases
-8. **Automated Order Emails** — Transactional emails for order confirmation, shipping updates, and delivery confirmation using Nodemailer
+8. **Automated Order Emails** — Transactional emails for order confirmation and shipping updates using Nodemailer
 9. **Product Comparison** — Allow customers to compare up to 4 products side-by-side
-10. **Advanced Inventory** — Low-stock alerts via email, automatic reorder triggers, warehouse management
+10. **Advanced Inventory** — Low-stock alerts via email, automatic reorder triggers
 
 ---
 
@@ -479,25 +523,51 @@ CMD ["node", "src/index.js"]
 AfriCraft Rwanda successfully demonstrates the development of a production-quality, full-stack e-commerce platform tailored to Rwanda's handicraft sector. The application meets all mandatory project requirements:
 
 - ✅ **Responsive UI** with consistent branding and mobile-first design
-- ✅ **Product Management** with search, filters, categories, and multi-image Cloudinary upload
+- ✅ **Product Management** with search, filters, categories, and image upload
 - ✅ **Shopping Cart** with add, remove, quantity update, and automatic total calculation
 - ✅ **Checkout Process** with form validation and order confirmation
-- ✅ **Database Integration** with MongoDB — 9 collections covering all entities and relationships
-- ✅ **GitHub Repository** with 80+ meaningful commits and complete documentation
+- ✅ **Database Integration** with MongoDB — 8 collections covering all entities and relationships
+- ✅ **GitHub Repository** with 90+ meaningful commits and complete documentation
 - ✅ **Deployment** on Vercel (frontend) and Render (backend), both publicly accessible
 - ✅ **CI/CD Pipeline** via GitHub Actions with automated build, test, and Docker verification
 - ✅ **Docker Containerisation** with multi-stage Dockerfile and docker-compose orchestration
 
-Beyond the baseline requirements, the project implements several bonus features earning additional marks:
+Beyond the baseline requirements, the project implements several bonus features:
 - ✅ Multi-Vendor Marketplace with vendor and rider dashboards
 - ✅ Analytics Dashboard with charts and revenue reporting
 - ✅ Advanced Security (JWT, bcrypt, role-based access, input validation)
 - ✅ Admin CMS for homepage content management
-
-This project has been a comprehensive exercise in modern full-stack development, DevOps, and cloud deployment. It reinforced the importance of clean architecture, production-quality error handling, and user experience design.
+- ✅ Inventory Management with stock adjustments and alerts
+- ✅ Discount & Promotions system with coupon codes
+- ✅ Notification Center with activity log
 
 > *"Whatever you do, work at it with all your heart, as working for the Lord, not for human masters."*
 > — Colossians 3:23
+
+---
+
+## Assessment Criteria Coverage
+
+| Component | Marks | Status |
+|---|---|---|
+| User Interface (UI/UX) | 5 | ✅ Responsive, professional, mobile-first |
+| Product Management | 4 | ✅ Full CRUD, categories, search, filters |
+| Shopping Cart Functionality | 4 | ✅ Add, remove, update, auto-totals |
+| Checkout Process | 4 | ✅ Validation, order summary, confirmation |
+| Database Integration | 5 | ✅ MongoDB, 8 collections, relationships |
+| GitHub Usage & Documentation | 3 | ✅ 90+ commits, README, structure |
+| Deployment | 3 | ✅ Vercel + Render, publicly accessible |
+| CI/CD Pipeline | 4 | ✅ GitHub Actions, automated build/test |
+| Docker Implementation | 4 | ✅ Multi-stage Dockerfile, docker-compose |
+| Presentation & Oral Defense | 4 | ✅ Ready to demonstrate all components |
+| **Total** | **40** | |
+
+### Innovation Bonus Features (Up to 5 Marks)
+- ✅ Analytics Dashboard with revenue charts and category performance
+- ✅ Multi-Vendor Marketplace with vendor and rider dashboards
+- ✅ Advanced Security (JWT, bcrypt, RBAC, input validation)
+- ✅ Admin CMS with site settings and content management
+- ✅ Inventory Management, Discount System, Notification Center
 
 ---
 
@@ -529,9 +599,6 @@ PORT=5000
 MONGODB_URI=mongodb://localhost:27017/dellcraft
 JWT_SECRET=your-secret-here
 CLIENT_URL=http://localhost:5173
-CLOUDINARY_CLOUD_NAME=nyd9fgxr
-CLOUDINARY_API_KEY=633921147819551
-CLOUDINARY_API_SECRET=your-cloudinary-secret
 ```
 
 `client/.env`:
@@ -572,61 +639,31 @@ africraft-rwanda/
 ├── client/                    # React + TypeScript + Vite
 │   ├── src/
 │   │   ├── components/        # Shared UI components
-│   │   │   ├── AdminLayout.tsx
-│   │   │   ├── Layout.tsx
-│   │   │   ├── ImageUpload.tsx
-│   │   │   └── RequireAuth.tsx
 │   │   ├── pages/             # Route page components
 │   │   ├── services/          # API client & service functions
-│   │   └── styles/            # CSS design system
+│   │   └── styles/            # CSS design system (modular)
 │   ├── Dockerfile
-│   ├── nginx.conf
-│   └── .env.production        # Production API URL
+│   └── nginx.conf
 ├── server/                    # Node.js + Express
 │   ├── src/
 │   │   ├── controllers/       # Route handlers
 │   │   ├── models/            # Mongoose schemas
 │   │   ├── routes/            # Express routers
 │   │   ├── middleware/        # auth, errorHandler, validate
-│   │   └── lib/               # db.js, cloudinary.js
+│   │   └── lib/               # db.js
 │   ├── scripts/               # Seed scripts
-│   ├── Dockerfile
-│   └── .env.example
-├── docs/                      # Documentation
+│   └── Dockerfile
+├── docs/
+│   ├── images/                # Application screenshots
 │   ├── DATABASE.md
 │   ├── DEPLOYMENT.md
 │   └── PROJECT_REPORT.md
 ├── .github/workflows/
 │   └── ci-cd.yml              # GitHub Actions pipeline
 ├── docker-compose.yml
-├── render.yaml                # Render deployment config
-├── Procfile                   # Alternative Render start command
+├── render.yaml
 └── README.md
 ```
-
----
-
-## Environment Variables Reference
-
-### Server (`server/.env`)
-
-| Variable | Required | Description |
-|---|---|---|
-| `PORT` | No | API port (default: 5000) |
-| `NODE_ENV` | Yes | `development` or `production` |
-| `MONGODB_URI` | Yes | MongoDB connection string |
-| `JWT_SECRET` | Yes | JWT signing secret (keep strong) |
-| `JWT_EXPIRE` | No | Token expiry (default: `7d`) |
-| `CLIENT_URL` | Yes | Frontend URL for CORS |
-| `CLOUDINARY_CLOUD_NAME` | Yes | Cloudinary cloud name |
-| `CLOUDINARY_API_KEY` | Yes | Cloudinary API key |
-| `CLOUDINARY_API_SECRET` | Yes | Cloudinary API secret |
-
-### Client (`client/.env`)
-
-| Variable | Required | Description |
-|---|---|---|
-| `VITE_API_URL` | Yes | Backend API base URL |
 
 ---
 
@@ -645,8 +682,12 @@ africraft-rwanda/
 
 ---
 
+<div align="center">
+
 **Student:** Charlene Macattoh
 **Course:** EWA408510 – E-Commerce and Web Application
-**Institution:** Rwanda Coding Academy
+**Institution:** Rwanda Coding Academy / UNILAK
 **Year:** 2025–2026
 **License:** MIT
+
+</div>
