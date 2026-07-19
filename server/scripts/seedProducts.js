@@ -329,7 +329,7 @@ const products = [
     name: 'Handwoven Storage Basket',
     description: 'Large handwoven storage basket perfect for organizing your home. Strong, stylish, and sustainably made.',
     price: 40000,
-    imageUrl: 'http://mawuafrica.com/cdn/shop/files/1_71671e07-0786-4b2f-8c9f-5d360a4c0a0e.png?v=1747750568',
+    imageUrl: 'https://cdn.pixabay.com/photo/2020/06/06/10/07/basket-5265775_1280.jpg',
     category: 'Storage',
     stock: 55,
     isActive: true,
