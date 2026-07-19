@@ -79,7 +79,7 @@ const products = [
     name: 'Wooden Elephant Carving',
     description: 'Beautifully hand-carved wooden elephant, a symbol of strength and wisdom. Makes a stunning home décor piece.',
     price: 72000,
-    imageUrl: 'https://images.unsplash.com/photo-1605197788044-23f0e6a6e73b?auto=format&fit=crop&w=1000&q=80',
+    imageUrl: 'https://cdn.pixabay.com/photo/2015/03/18/09/30/wood-carving-677938_1280.jpg',
     category: 'Wood Carvings',
     stock: 20,
     isActive: true,
