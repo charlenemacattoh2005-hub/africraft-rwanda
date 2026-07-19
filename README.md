@@ -291,55 +291,39 @@ maxUses, uses, startDate, endDate, isActive, description, timestamps
 
 #### Homepage
 ![Homepage](docs/images/homePage.png)
-*AfriCraft Rwanda homepage — hero banner, featured categories, new arrivals, and main navigation*
-
----
+*Hero section with featured products, categories, and navigation*
 
 #### Shopping Cart
 ![Shopping Cart](docs/images/CartPage.png)
-*Shopping cart — product items, quantity controls, price breakdown, and checkout button*
-
----
+*Cart with product items, quantities, and automatic total calculation*
 
 #### Categories Page
 ![Categories](docs/images/categloryPage.png)
-*Product categories — browse all craft types with image cards and descriptions*
-
----
+*Product categories grid with browse functionality*
 
 #### Admin Dashboard
 ![Admin Dashboard](docs/images/Admin%20Dashboard.png)
-*Admin dashboard — KPI cards (revenue, orders, customers, products), revenue bar chart, top products, low-stock alerts, and activity feed*
-
----
+*KPI cards, revenue chart, recent orders, and activity feed*
 
 #### Admin Products Page
 ![Admin Products](docs/images/Admin%20product%20page.png)
-*Admin product management — full table with bulk actions, Cloudinary image upload, category filter, and status management*
-
----
+*Product management table with create, edit, delete, and category filter*
 
 #### Customer Dashboard
 ![Customer Dashboard](docs/images/customerdashboard.png)
-*Customer account dashboard — order history, profile management, and account settings*
-
----
+*Customer account with order history and profile management*
 
 #### Vendor Dashboard
 ![Vendor Dashboard](docs/images/vendorDashboard.png)
-*Vendor dashboard — real earnings KPIs, product listings with edit/delete, order tracking, and analytics breakdown*
-
----
+*Vendor KPIs, product listings, and earnings summary*
 
 #### GitHub Actions CI/CD Workflow
 ![CI/CD Workflow](docs/images/GithubWOrkflow.png)
-*GitHub Actions pipeline — automated build, test, and Docker verification on every push to main*
+*Automated pipeline: build, test, and Docker verification on every push to main*
 
----
-
-#### Docker Engine — All Services Running
+#### Docker Engine
 ![Docker](docs/images/DockerEngine.png)
-*Docker Desktop showing all three services running: web (Nginx on 8080), api (Express on 5000), mongo (MongoDB on 27017)*
+*Docker Desktop showing all three services running: web (Nginx), api (Express), mongo*
 
 ---
 
@@ -410,7 +394,6 @@ Every successful push to `main` triggers:
 6. ✅ Docker build verification
 
 ![CI/CD Workflow](docs/images/GithubWOrkflow.png)
-*Screenshot: GitHub Actions showing all pipeline steps passing — checkout, install, build, test, Docker*
 
 ---
 
@@ -485,7 +468,6 @@ CMD ["node", "src/index.js"]
 ```
 
 ![Docker Engine](docs/images/DockerEngine.png)
-*Screenshot: Docker Desktop showing web, api, and mongo containers all running successfully*
 
 ---
 
